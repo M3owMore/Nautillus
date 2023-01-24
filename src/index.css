@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Kanit:wght@500&display=swap');
+
+html{
+    background-color: rgb(0, 0, 0);
+    overflow-x: hidden;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f100;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255);
+    border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(200, 200, 200);   
+}
+
+
+.Dropdown-control {
+    border-radius: 0px !important;
+    border: none !important;
+    background-color: rgb(35, 35, 35) !important;
+    color: white !important;
+}
+
+.Dropdown-menu{
+    border-radius: 0px !important;
+    border: none !important;
+    background-color: rgb(35, 35, 35) !important;
+    color: white !important;
+}
+
+.Dropdown-option{
+    background-color: rgb(35, 35, 35) !important;
+    color: white !important;
+    padding: 8px;
+}
+
+.switch{
+    position: fixed !important;
+    bottom: 32px !important;
+    right: 32px !important;
+
+}
