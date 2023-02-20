@@ -5,6 +5,7 @@ from .serializers import CourseSerializer
 from rest_framework import permissions 
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
 
 
 
@@ -19,6 +20,10 @@ class CourseDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
+
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('pk')
+        return get_object_or_404(Course, title=item)
 
 class CourseEdit(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAdminUser]

@@ -2,10 +2,8 @@ from django.db import models
 from django.utils import timezone
 
 class Course(models.Model):
-    title = models.TextField(max_length=100)
-    requirements = models.TextField(max_length=150)
-    silabus = models.TextField(max_length=500)
-    description = models.TextField(max_length=500)
+    title = models.TextField(max_length=1000)
+    description = models.TextField(max_length=5000000)
     date_created = models.DateTimeField(default=timezone.now)
 
 
