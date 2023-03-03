@@ -4,6 +4,11 @@ from rest_framework.views import APIView
 # from .serializers import RegisterUserSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework import status
+from djoser import email
+
+class ActivationEmail(email.ActivationEmail):
+    template_name = 'activateEmail.html'
+    
 
 # class CustomUserCreate(APIView):
 #     permission_classes = [AllowAny]

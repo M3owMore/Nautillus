@@ -193,7 +193,10 @@ DJOSER = {
     'SET_PASSWORD_RETYPE': True,
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
     'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': 'api/user/activate/{uid}/{token}', # mgoni swored ar mushaobs 
+    'EMAIL': {
+        'activation': 'users.views.ActivationEmail',
+    },
+    'ACTIVATION_URL': 'api/user/activate/{uid}/{token}', # ra linksac minda imas chavwer
     'SEND_ACTIVATION_EMAIL': True,
     'SEND_CONFIRMATION_EMAIL': True,
     'SERIALIZERS':{
