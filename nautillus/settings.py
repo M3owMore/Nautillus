@@ -196,7 +196,7 @@ DJOSER = {
     'EMAIL': {
         'activation': 'users.views.ActivationEmail',
     },
-    'ACTIVATION_URL': 'api/user/activate?uid={uid}&token={token}', # ra linksac minda imas chavwer
+    'ACTIVATION_URL': 'http://localhost:3000/user/activation?uid={uid}&token={token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SEND_CONFIRMATION_EMAIL': True,
     'SERIALIZERS':{
