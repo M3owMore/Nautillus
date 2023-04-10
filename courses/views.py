@@ -34,6 +34,7 @@ class CourseDetail(generics.RetrieveAPIView):
                 if course.description != courseFromDb.description:
                     cache.delete(course)
                     course = get_object_or_404(Course, title=item)
+                    cache.set(item, course)
                     print("delete course from cache")
             else:
                 raise NotFound(detail="error 404, course not found", code=404)
