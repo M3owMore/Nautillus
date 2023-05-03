@@ -1,25 +1,31 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from .models import Message
+from .models import Message, Room
+from users.models import NewUser
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 class ChatConsumer(WebsocketConsumer):
+
     def fetch_messages(self, data):
-        messages = Message.last_10_messages()
+        messages = Message.last_10_messages(data['room_name'])
         content = {
             'command': 'fetch_messages',
             'messages': self.messages_to_json(messages)
         }
         self.send_message(content)
 
-    # i need to change author
     def new_message(self, data):
-        author = data['author']
-        author_user = User.objects.filter(user_name=author)[0]
-        message = Message.objects.create(author=author_user, content=data['message'])
+        sender = data['sender']
+        receiver = data['receiver']
+        room_name = data['room_name']
+        
+        sender_user = User.objects.filter(user_name=sender)[0]
+        receiver_user = User.objects.filter(user_name=receiver)[0]
+        room = Room.objects.filter(name=room_name)[0]
+        message = Message.objects.create(sender=sender_user, receiver=receiver_user, content=data['message'], room=room)
         content = {
             'command': 'new_message',
             'message': self.message_to_json(message)
@@ -34,25 +40,28 @@ class ChatConsumer(WebsocketConsumer):
     
     def message_to_json(self, message):
         return {
-            'author': message.author.user_name,
+            'sender': message.sender.user_name,
+            'receiver': message.receiver.user_name,
             'content': message.content,
             'timestamp': str(message.timestamp)
         }
 
-    commands = {
-        'fetch_messages': fetch_messages,
-        'new_message': new_message
-    }
 
     def connect(self):
-        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room_group_name = "chat_%s" % self.room_name
+        # aq group name aris mtavari sadac igzavneba mesijebi
+        room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = room_name
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name, self.channel_name
         )
 
         self.accept()
+
+    commands = {
+        'fetch_messages': fetch_messages,
+        'new_message': new_message,
+    }
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(

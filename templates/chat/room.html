@@ -5,16 +5,20 @@
     <title>Chat Room</title>
 </head>
 <body>
+    <h2>current user: {{ sender_user_name }}</h2>
     <textarea id="chat-log" cols="100" rows="20"></textarea><br>
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
-    {{ user_name|json_script:"user-name" }}
+    {{ receiver_user_name|json_script:"receiver-user-name" }}
+    {{ sender_user_name|json_script:"sender-user-name" }}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
-        const userName = JSON.parse(document.getElementById('user-name').textContent);
-        console.log(userName)
-
+        const receiverUserName = JSON.parse(document.getElementById('receiver-user-name').textContent);
+        const senderUserName = JSON.parse(document.getElementById('sender-user-name').textContent);
+        console.log(senderUserName)
+        console.log(receiverUserName)
+        
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -22,7 +26,7 @@
             + roomName
             + '/'
         );
-
+        
         chatSocket.onopen = function(e){
             fetchMessages();
         }
@@ -33,11 +37,11 @@
             console.log(data["messages"])
             if (data['command'] === 'fetch_messages'){
                 for (let i=0; i < data['messages'].length; i++){
-                    document.querySelector('#chat-log').value += (data.messages[i].author + ':' + ' ' + data.messages[i].content + '\n');
+                    document.querySelector('#chat-log').value += (data.messages[i].sender + ':' + ' ' + data.messages[i].content + '\n');
                 }
             }
             else if (data['command'] === 'new_message'){
-                document.querySelector('#chat-log').value += (data.message.author + ':' + ' ' +data.message.content + '\n');
+                document.querySelector('#chat-log').value += (data.message.sender + ':' + ' ' + data.message.content + '\n');
             }
         };
 
@@ -58,14 +62,17 @@
             chatSocket.send(JSON.stringify({
                 'message': message,
                 'command': 'new_message',
-                'author': userName
+                'sender': senderUserName,
+                'receiver': receiverUserName,
+                'room_name': roomName,
             }));
             messageInputDom.value = '';
         };
 
         function fetchMessages(){
-            chatSocket.send(JSON.stringify({'command': 'fetch_messages'}))
+            chatSocket.send(JSON.stringify({'command': 'fetch_messages', 'room_name': roomName}))
         }
+
     </script>
 </body>
 </html>
