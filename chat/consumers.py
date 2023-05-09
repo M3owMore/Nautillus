@@ -19,7 +19,7 @@ class ChatConsumer(WebsocketConsumer):
 
     def new_message(self, data):
         sender = data['sender']
-        receiver = data['receiver']
+        receiver = data['receiver'] # unda wavlshalo
         room_name = data['room_name']
         
         sender_user = User.objects.filter(user_name=sender)[0]
@@ -41,7 +41,7 @@ class ChatConsumer(WebsocketConsumer):
     def message_to_json(self, message):
         return {
             'sender': message.sender.user_name,
-            'receiver': message.receiver.user_name,
+            'receiver': message.receiver.user_name, # unda wavshalo
             'content': message.content,
             'timestamp': str(message.timestamp)
         }
