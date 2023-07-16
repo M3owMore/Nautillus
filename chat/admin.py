@@ -11,7 +11,7 @@ class RoomAdminConfig(ModelAdmin):
 
 class MessageAdminConfig(ModelAdmin):
     model = Message
-    list_display = ('sender', 'receiver', 'id')
+    list_display = ('sender', 'id')
 
 admin.site.register(Message, MessageAdminConfig)
 admin.site.register(Room, RoomAdminConfig)

@@ -21,7 +21,6 @@ def delete_rooms(sender, instance, **kwargs):
 class Message(models.Model):
     content = models.TextField()
     sender = models.ForeignKey(User, related_name="sender_messages", on_delete=models.CASCADE)
-    receiver = models.ForeignKey(User, related_name="receiver_messages", on_delete=models.CASCADE)
     room = models.ForeignKey(Room, related_name="room_name", on_delete=models.CASCADE)
     timestamp = models.DateTimeField(default=timezone.now)
 

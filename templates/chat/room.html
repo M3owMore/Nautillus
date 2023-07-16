@@ -10,14 +10,11 @@
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
-    {{ receiver_user_name|json_script:"receiver-user-name" }}
     {{ sender_user_name|json_script:"sender-user-name" }}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
-        const receiverUserName = JSON.parse(document.getElementById('receiver-user-name').textContent);
         const senderUserName = JSON.parse(document.getElementById('sender-user-name').textContent);
         console.log(senderUserName)
-        console.log(receiverUserName)
         
         const chatSocket = new WebSocket(
             'ws://'
@@ -63,7 +60,6 @@
                 'message': message,
                 'command': 'new_message',
                 'sender': senderUserName,
-                'receiver': receiverUserName,
                 'room_name': roomName,
             }));
             messageInputDom.value = '';

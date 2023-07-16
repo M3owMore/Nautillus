@@ -40,12 +40,11 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
         'about'), max_length=500, blank=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
-    # ratomgac adminshi achvenebs ro chamatebuli myavs megobrebi magram bazashi ara, bazashi normaludad mushaobs yvelaferi
     friends = models.ManyToManyField('self', blank=True)
     objects = CustomAccountManager()
 
-    USERNAME_FIELD = 'user_name'
-    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['user_name']
 
     def __str__(self):
         return self.user_name

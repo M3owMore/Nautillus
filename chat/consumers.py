@@ -19,13 +19,11 @@ class ChatConsumer(WebsocketConsumer):
 
     def new_message(self, data):
         sender = data['sender']
-        receiver = data['receiver'] # unda wavlshalo
         room_name = data['room_name']
         
         sender_user = User.objects.filter(user_name=sender)[0]
-        receiver_user = User.objects.filter(user_name=receiver)[0]
         room = Room.objects.filter(name=room_name)[0]
-        message = Message.objects.create(sender=sender_user, receiver=receiver_user, content=data['message'], room=room)
+        message = Message.objects.create(sender=sender_user, content=data['message'], room=room)
         content = {
             'command': 'new_message',
             'message': self.message_to_json(message)
@@ -41,7 +39,6 @@ class ChatConsumer(WebsocketConsumer):
     def message_to_json(self, message):
         return {
             'sender': message.sender.user_name,
-            'receiver': message.receiver.user_name, # unda wavshalo
             'content': message.content,
             'timestamp': str(message.timestamp)
         }

@@ -7,6 +7,8 @@ from rest_framework import generics
 from rest_framework import permissions 
 from .serializers import RoomSerializer
 from rest_framework.exceptions import NotFound
+from rest_framework import status
+from rest_framework.response import Response
 
 User = get_user_model()
 
@@ -35,7 +37,7 @@ def room(request, room_name):
 
         return render(
             request, "chat/room.html", 
-            {"room_name": sorted_room_name, 'sender_user_name': sender_user_name, 'receiver_user_name': receiver_user_name})
+            {"room_name": sorted_room_name, 'sender_user_name': sender_user_name})
     else:
         error = "this user dose not exist"
         return render(request, "chat/index.html", {"error": error})
@@ -62,13 +64,16 @@ class Rooms(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = RoomSerializer
     queryset = Room.objects.all()
+    # def get_queryset(self):
+    #     username = self.request.query_params.get('username', None)
+    #     if username is not None:
+    #         user = get_user(username=username)
+    #         return Room.objects.filter(accessed_users=user)
     def get_queryset(self):
-        username = self.request.query_params.get('username', None)
-        if username is not None:
-            user = get_user(username=username)
-            return Room.objects.filter(accessed_users=user)
+        user = self.request.user
+        return Room.objects.filter(accessed_users=user)
+            
 
-# aq maq ragaceebi gasasworebeli
 class RoomDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = RoomSerializer
@@ -81,26 +86,28 @@ class RoomDetail(generics.RetrieveAPIView):
             room = Room.objects.filter(name=room_name)[0]
             return room
         except:
+            return None
+    
+    def retrieve(self, request, *args, **kwargs):
+        room = self.get_object()
+        if room is not None:
+            serializer = self.get_serializer(room)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        else:
+            receiver_name = self.kwargs.get('pk')
+            room_name = make_room_name(request, receiver_name)
+
             sender_user = self.request.user
             receiver_user = User.objects.filter(user_name=receiver_name)[0]
             if sender_user.is_active and receiver_user.is_active:
                 room = Room.objects.create(name=room_name)
                 room.accessed_users.add(sender_user)
                 room.accessed_users.add(receiver_user)
-                return room
+                serializer = self.get_serializer(room)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 raise NotFound(code=400, detail='one of the user is not active')
-        
-
-    #         if not Room.objects.filter(name=sorted_room_name):
-    #             sender = User.objects.filter(user_name=sender_user_name)[0]
-    #             receiver = User.objects.filter(user_name=receiver_user_name)[0]
-
-    #             create_room = Room.objects.create(name=sorted_room_name)
-    #             create_room.accessed_users.add(sender)
-    #             create_room.accessed_users.add(receiver)
-    #         else:
-    #             pass
 
 
 class RoomCreate(generics.CreateAPIView):
