@@ -9,9 +9,6 @@ from django.shortcuts import get_object_or_404
 from django.core.cache import cache
 from rest_framework.exceptions import NotFound
 
-
-
-
 class CourseList(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = CourseSerializer

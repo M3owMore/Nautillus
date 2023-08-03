@@ -12,6 +12,9 @@ from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
+from courses.models import Course
+from .models import UserCourse
+from .serializers import CourseOpenSerializer
 
 User = get_user_model()
 
@@ -81,31 +84,62 @@ class CustomTokenCreateView(TokenObtainPairView):
         }
 
         try:
-            user = User.objects.filter(email=request.data['email'])[0]
-            expired_tokens = OutstandingToken.objects.filter(expires_at__lt=timezone.now(), user=user)
-
-            if expired_tokens:
-                expired_tokens.delete()
-                response['expired tokens'] = 'deleted'
-                print("Expired tokens are deleted") # wasashleli
             
-            existing_tokens = OutstandingToken.objects.filter(user=user)
-            for existing_token in existing_tokens:
-                if BlacklistedToken.objects.filter(token=existing_token):
-                    existing_token.delete()
-                    response['blacklisted tokens'] = 'deleted'
+            if User.objects.filter(email=request.data['email']) and request.data['password']:
+                user = User.objects.filter(email=request.data['email'])[0]
+                expired_tokens = OutstandingToken.objects.filter(expires_at__lt=timezone.now(), user=user)
+                
+                if expired_tokens:
+                    expired_tokens.delete()
+                    response['expired tokens'] = 'deleted'
+                    print("Expired tokens are deleted") # wasashleli
+                
+                existing_tokens = OutstandingToken.objects.filter(user=user)
+                for existing_token in existing_tokens:
+                    if BlacklistedToken.objects.filter(token=existing_token):
+                        existing_token.delete()
+                        response['blacklisted tokens'] = 'deleted'
 
-                    
-            if existing_tokens.count() >= token_limit:
-                response['error'] = 'Maximum token limit reached.'
-                return Response(response, status=status.HTTP_403_FORBIDDEN)
+                        
+                if existing_tokens.count() >= token_limit:
+                    response['error'] = 'Maximum token limit reached.'
+                    return Response(response, status=status.HTTP_403_FORBIDDEN)
 
+                else:
+                    return Response({'tokens': super().post(request, *args, **kwargs).data, 'response': response})
+            
             else:
-                return Response({'tokens': super().post(request, *args, **kwargs).data, 'response': response})
+                return Response({'error': 'Email or Password is worng'})
             
         except Exception as error:
 
             return Response({'error': f'{error}'})
-        
-            
+
+# wesit yvelaferi mushaobs gatestvaga unda
+class CourseOpenView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, title):
+        user = request.user 
+        userCourses = UserCourse.objects.filter(user=user)
+        chosenCourse = userCourses.filter(title=title)[0]
+        chosenCourse.opened_at = timezone.datetime.now()
+        chosenCourse.save()
+        serializer = CourseOpenSerializer(chosenCourse)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserCoursesList(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user 
+        sorted_courses = UserCourse.objects.filter(user=user).order_by('-opened_at')
+        serializer = CourseOpenSerializer(sorted_courses, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    
+
+    
 # jwt/refresh is dros bazashi useri ar chans
+

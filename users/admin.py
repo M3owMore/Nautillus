@@ -1,5 +1,6 @@
 from django.contrib import admin
 from users.models import NewUser
+from users.models import UserCourse
 from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea, CharField
 from django import forms
@@ -27,6 +28,8 @@ class UserAdminConfig(UserAdmin):
             'fields': ('email', 'user_name', 'password1', 'password2', 'is_active', 'is_staff')}
          ),
     )
+    
 
 
 admin.site.register(NewUser, UserAdminConfig)
+admin.site.register(UserCourse)

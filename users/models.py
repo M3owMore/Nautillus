@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils.translation import gettext_lazy as _
+from courses.models import Course
 
 class CustomAccountManager(BaseUserManager):
 
@@ -31,7 +32,7 @@ class CustomAccountManager(BaseUserManager):
         user.save()
         return user
 
-
+# kursebia dasamatebeli sadac iqneba open time romelic shinaxavs bolo gaxsnis dros da imis mixedvit dasortavs
 class NewUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
     user_name = models.CharField(max_length=150, unique=True)
@@ -48,3 +49,16 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.user_name
+
+
+class UserCourse(models.Model):
+    user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    title = models.TextField(max_length=1000, blank=True)
+    opened_at = models.DateTimeField(default=timezone.now)
+    purchased_at = models.DateTimeField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        if not self.title:
+            self.title = self.course.title
+        super(UserCourse, self).save(*args, **kwargs)

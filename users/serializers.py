@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer
 from django.contrib.auth import get_user_model
+from .models import UserCourse
 
 User = get_user_model()
 
@@ -24,3 +25,9 @@ class UserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User
         fields = ('id', 'email', 'user_name', 'password')
+
+
+class CourseOpenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserCourse
+        fields = "__all__"
