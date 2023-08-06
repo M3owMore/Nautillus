@@ -2,6 +2,7 @@ from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer
 from django.contrib.auth import get_user_model
 from .models import UserCourse
+from courses.models import Course
 
 User = get_user_model()
 
@@ -30,4 +31,10 @@ class UserCreateSerializer(UserCreateSerializer):
 class CourseOpenSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserCourse
+        fields = "__all__"
+
+
+class UserOpenCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
         fields = "__all__"

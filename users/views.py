@@ -14,7 +14,7 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from courses.models import Course
 from .models import UserCourse
-from .serializers import CourseOpenSerializer
+from .serializers import CourseOpenSerializer, UserOpenCourseSerializer
 
 User = get_user_model()
 
@@ -125,7 +125,7 @@ class CourseOpenView(views.APIView):
         chosenCourse = userCourses.filter(title=title)[0]
         chosenCourse.opened_at = timezone.datetime.now()
         chosenCourse.save()
-        serializer = CourseOpenSerializer(chosenCourse)
+        serializer = UserOpenCourseSerializer(chosenCourse.course)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -137,9 +137,6 @@ class UserCoursesList(views.APIView):
         sorted_courses = UserCourse.objects.filter(user=user).order_by('-opened_at')
         serializer = CourseOpenSerializer(sorted_courses, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    
-
     
 # jwt/refresh is dros bazashi useri ar chans
 
