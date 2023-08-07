@@ -23,7 +23,7 @@ const Home = (props:any) => {
 
     useEffect(() => {
         const getData = async () => {
-            const res = await axios.get(props.app.backendURL + "api/user/auth/users/courses/", {headers: {Authorization: 'Bearer ' + props.app.cookies.get('access')}})
+            const res = await axios.get(props.app.backendURL + "api/user/courses/", {headers: {Authorization: 'Bearer ' + props.app.cookies.get('access')}})
             setCourses(res.data)
         }
         getData();
