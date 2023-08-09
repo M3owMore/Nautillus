@@ -1,0 +1,106 @@
+[
+    [
+        {
+            "name": "Nmap",
+            "level": "Beginner",
+            "text": [
+                "Introduction to Nmap.",
+                "Basics of port scanning.",
+                "Gathering more information with Nmap.",
+                "Discover Hosts with Nmap.",
+                "Nmap TCP and UDP scanning.",
+                "Nmap additional flags."
+            ]
+        },
+
+        {
+            "name": "Metasploit",
+            "level": "Beginner",
+            "text": [
+                "Introduction to Metasploit.",
+                "Basics of Metasploit.",
+                "Basics of payloads and exploits.",
+                "Generating and encoding payloads.",
+                "Introduction to shells.",
+                "Reverse shells vs Bind shells."
+            ]
+        },
+
+        {
+            "name": "SQL injections",
+            "level": "Intermediate",
+            "text": [
+                "Introduction to SQL injections.",
+                "How to inject SQL code.",
+                "Introduction to Sqlmap.",
+                "Basics of Sqlmap.",
+                "Introduction to HTTP protocol.",
+                "GET method vs POST method."
+            ]
+        },
+
+        {
+            "name": "Burpsuite",
+            "level": "Intermediate",
+            "text": [
+                "Introduction to Burpsuite.",
+                "Introduction to HTTP protocol.",
+                "Introduction to JS(Javascript).",
+                "Setting up Burpsuite.",
+                "Bruteforcing directories on website with dirbuster."
+            ]
+        }
+    ],
+    [
+        {
+            "name": "Nmap",
+            "level": "დამწყები",
+            "text": [
+                "Introduction to Nmap.",
+                "Basics of port scanning.",
+                "Gathering more information with Nmap.",
+                "Discover Hosts with Nmap.",
+                "Nmap TCP and UDP scanning.",
+                "Nmap additional flags."
+            ]
+        },
+    
+        {
+            "name": "Metasploit",
+            "level": "დამწყები",
+            "text": [
+                "შესავალი Metasploit_ში.",
+                "საწყისები Metasploit_ის.",
+                "დატვირთვისა და ექსპლოიტების საფუძვლები.",
+                "ტვირთამწეობის გენერირება და კოდირება.",
+                "Shell_ის შესავალი.",
+                "Reverse shells vs Bind shells."
+            ]
+        },
+    
+        {
+            "name": "SQL injections",
+            "level": "შუალედური",
+            "text": [
+                "შესავალი SQL ინექციებში.",
+                "როგორ შევიტანოთ SQL კოდი.",
+                "Sqlmap-ის შესავალი.",
+                "Sqlmap-ის საფუძვლები.",
+                "HTTP პროტოკოლის შესავალი.",
+                "GET მეთოდი vs POST მეთოდი."
+            ]
+        },
+    
+        {
+            "name": "Burpsuite",
+            "level": "შუალედური",
+            "text": [
+                "Burpsuite_ის შესავალი.",
+                "HTTP protocol_ის შესავალი.",
+                "შესავალი JS (ჯავასკრიფტში).",
+                "მომზადება Burpsuite_ის.",
+                "Bruteforcing directories on website with dirbuster."
+            ]
+        }
+    ]
+]
