@@ -1,0 +1,80 @@
+[
+    {
+        "name": "Apple iPhone 14 Pro | 128GB Deep Purple",
+        "price": 1200,
+        "sale": 0,
+        "id": 1
+    },
+    {
+        "name": "Samsung Galaxy A34 5G A346E/DS 6/128GB Graphite",
+        "price": 300,
+        "sale": 50,
+        "id": 2
+    },
+    {
+        "name": "Apple AirPods 3 with Lightning Charging Case White ",
+        "price": 180,
+        "sale": 30,
+        "id": 3
+    },
+    {
+        "name": "Xiaomi Redmi Note 12 Dual Sim 4GB RAM 128GB LTE Global",
+        "price": 250,
+        "sale": 20,
+        "id": 4
+    },
+    {
+        "name": "Apple Watch Series 8 GPS 41mm Midnight Aluminum Case",
+        "price": 300,
+        "sale": 0,
+        "id": 5
+    },
+    {
+        "name": "Xiaomi Redmi Pad 4GB RAM 128GB Wi-Fi Global Version M ...",
+        "price": 150,
+        "sale": 30,
+        "id": 6
+    },
+    {
+        "name": "Marshall Major IV Bluetooth Brown ",
+        "price": 120,
+        "sale": 20,
+        "id": 7
+    },
+    {
+        "name": "Samsung LSP3B Freestyle Projector White",
+        "price": 600,
+        "sale": 50,
+        "id": 8
+    },
+    {
+        "name": "HP Victus 16 4M088EA, AMD Ryzen 5 5600H Hexa 3.3 Ghz",
+        "price": 1000,
+        "sale": 0,
+        "id": 9
+    },
+    {
+        "name": "Xiaomi TV A2 55 Global Version ",
+        "price": 400,
+        "sale": 0,
+        "id": 10
+    },
+    {
+        "name": "Apple iPhone 13 Mini | 128GB Blue",
+        "price": 600,
+        "sale": 30,
+        "id": 11
+    },
+    {
+        "name": "Apple iPhone 13 Mini | 128GB Green",
+        "price": 600,
+        "sale": 0,
+        "id": 12
+    },
+    {
+        "name": "Apple iPhone 13 Mini | 128GB Midnight",
+        "price": 600,
+        "sale":  30,
+        "id": 13
+    }
+]
