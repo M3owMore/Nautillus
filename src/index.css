@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Kanit:wght@500&display=swap');
+@import url("//cdn.web-fonts.ge/fonts/alk-sanet/css/alk-sanet.min.css");
+@import url("//cdn.web-fonts.ge/fonts/bpg-extrasquare-mtavruli/css/bpg-extrasquare-mtavruli.min.css");
+@import url("//cdn.web-fonts.ge/fonts/arial-geo/css/arial-geo.min.css");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html{
+    background-color: #011014;
+    overflow-x: hidden;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 2px;
+    height: 2px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #04010800;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255);
+    border-radius: 2.5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(200, 200, 200);   
+}
+.Dropdown-arrow-wrapper{
+    display: none !important;
+    margin: 0px !important;
+
+}
+.Dropdown-placeholder{
+    width: 25px !important;
+    margin: 0px !important;
+
+}
+.Dropdown-control {
+    border-radius: 0px !important;
+    border: none !important;
+    background-color: transparent !important;
+    color: white !important;
+    width: 25px !important;
+
+}
+.Dropdown-root{
+    width: 32px !important;
+}
+.Dropdown-menu{
+    border-radius: 5px !important;
+    border: none !important;
+    background-color: rgb(23, 23, 23) !important;
+    color: white !important;
+    margin-left: 6px;
+}
+
+.Dropdown-option{
+    background-color: transparent !important;
+    color: white !important;
+    border-radius: 16px !important;
+    padding: 0px !important;
+    margin: 4px !important;
+}
+
+.switch{
+    position: fixed !important;
+    bottom: 32px !important;
+    right: 32px !important;
+}
+
+.link-underline {
+    border-bottom-width: 0;
+    background-image: linear-gradient(transparent, transparent), linear-gradient(rgb(180, 210, 115), #fff);
+    background-size: 0 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: .3s ease-in-out;
+}
+
+
+.link-underline:hover {
+    background-size: 100% 1px;
+    background-position: 0 100%
+}
+
+.link-underline-2 {
+    border-bottom-width: 0;
+    background-image: linear-gradient(transparent, transparent), linear-gradient(rgb(180, 210, 115), #fff);
+    background-size: 0 1px;
+    background-position: 0 85%;
+    background-repeat: no-repeat;
+    transition: .18s ease-in-out;
+}
+
+
+.link-underline-2:hover {
+    background-size: 100% 1px;
+    background-position: 0 85%
+}
+
+@keyframes header-appear-anim {
+    from {transform: translateY(-100%);}
+    to {transform: translateY(0px);}
+}
+
+.banner-anim{
+    animation-name: banner-wave-anim;
+    animation-duration: 2s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes banner-wave-anim {
+    0% {font-size: 18px;}
+    50% {font-size: 28px;}
+    100% {font-size: 18px;}
+}
+
+
+/* The element to apply the animation to */
+.header-appear {
+    transform: translateY(0px);
+    animation-name: header-appear-anim;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-in-out;
+}
