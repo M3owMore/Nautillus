@@ -1,0 +1,170 @@
+[
+    {
+        "userLevels": [
+            {
+                "name": "Bronze",
+                "title": "The basics to level up your hacking skills",
+                "price": "$0/month",
+                "features": [
+                    "Access on free courses",
+                    "Access on free challenges",
+                    "Access on weekly challenges",
+                    "Maximum rank Rook"
+                ],
+                "PTD": "100/1"
+            },
+            {
+                "name": "Silver",
+                "title": "Most features and services",
+                "price": "$15/month",
+                "features": [
+                    "Access on all bronze features",
+                    "Small LABs are free",
+                    "Can create clan that can contains 4 members",
+                    "Maximum rank Bishop"
+                ],
+                "PTD": "50/1"
+            },
+            {
+                "name": "Gold",
+                "title": "All our best features and services",
+                "price": "$40/month",
+                "features": [
+                    "Access on all bronze and silver features",
+                    "Access on 1 personal medium LAB",
+                    "20% discount on Medium LABs",
+                    "Can create clan that contains 8 members",
+                    "Maximum rank King"
+                ],
+                "PTD": "25/1"
+            }
+        ],  
+        "labs": [
+            {
+                "name": "Small lab",
+                "price": "$15/Day",
+                "features": [
+                    "Can hold up to 5 machines"
+                ]
+            },
+            {
+                "name": "Medium lab",
+                "price": "$25/Day",
+                "features": [
+                    "Can hold up to 15 machines",
+                    "Can be hired for a private party"
+                ]
+            },
+            {
+                "name": "Large lab",
+                "price": "$45/Day",
+                "features": [
+                    "Can hold up to 25 machines",
+                    "Can be hired for a private party"
+                ]
+            }
+        ],
+        "mentors": [
+            {
+                "name": "Personal mentor",
+                "price": "$0.2/Minute",
+                "features": [
+                    "Can be hired for any course",
+                    "Mentor’s skillset can be checked"
+                ]
+            },
+            {
+                "name": "Groups",
+                "price": "$20/Forever",
+                "features": [
+                    "Course can be checked before entering",
+                    "Time of lessons are fixed"
+                ]
+            }
+        ]
+    },
+    {
+        "userLevels": [
+            {
+                "name": "ბრინჯაო",
+                "title": "საფუძვლები თქვენი ჰაკერული უნარების გასაუმჯობესებლად",
+                "price": "$0/თვე",
+                "features": [
+                    "უფასო კურსებზე წვდომა",
+                    "წვდომა უფასო გამოწვევებზე",
+                    "წვდომა ყოველკვირეულ გამოწვევებზე",
+                    "მაქსიმალური წოდება Rook"
+                ],
+                "PTD": "100/1"
+            },
+            {
+                "name": "ვერცხლი",
+                "title": "ფუნქციებისა და სერვისების უმეტესობა",
+                "price": "$15/თვე",
+                "features": [
+                    "წვდომა ბრინჯაოს ყველა მახასიათებელზე",
+                    "მცირე ლაბორატორიები უფასოა",
+                    "შეუძლია შექმნას კლანი, რომელიც შეიცავს 4 წევრს",
+                    "მაქსიმალური წოდება ეპისკოპოსი"
+                ],
+                "PTD": "50/1"
+            },
+            {
+                "name": "ოქრო",
+                "title": "ყველა ჩვენი საუკეთესო ფუნქცია და მომსახურება",
+                "price": "$40/თვე",
+                "features": [
+                    "წვდომა ყველა ბრინჯაოს და ვერცხლის მახასიათებლებზე",
+                    "წვდომა 1 პერსონალურ საშუალო LAB-ზე",
+                    "20% ფასდაკლება დიდ LAB-ებზე",
+                    "შეუძლია შექმნას კლანი, რომელიც შეიცავს 8 წევრს",
+                    "მაქსიმალური წოდება მეფე"
+                ],
+                "PTD": "25/1"
+            }
+        ],  
+        "labs": [
+            {
+                "name": "პატარა ლაბორატორია",
+                "price": "$15/დღე",
+                "features": [
+                    "იტევს 5 მანქანას"
+                ]
+            },
+            {
+                "name": "საშუალო ლაბორატორია",
+                "price": "$25/დღე",
+                "features": [
+                    "იტევს 15-მდე მანქანას",
+                    "შესაძლებელია დაქირავება კერძო წვეულებაზე"
+                ]
+            },
+            {
+                "name": "დიდი ლაბორატორია",
+                "price": "$45/დღე",
+                "features": [
+                    "იტევს 25-მდე მანქანას",
+                    "შესაძლებელია დაქირავება კერძო წვეულებაზე"
+                ]
+            }
+        ],
+        "mentors": [
+            {
+                "name": "პირადი მენტორი",
+                "price": "$0.2/წუთი",
+                "features": [
+                    "შესაძლებელია დაქირავება ნებისმიერ კურსზე",
+                    "მენტორის უნარების შემოწმება შესაძლებელია"
+                ]
+            },
+            {
+                "name": "ჯგუფები",
+                "price": "$20/სამუდამოდ",
+                "features": [
+                    "კურსის შემოწმება შესაძლებელია შესვლამდე",
+                    "გაკვეთილების დრო განსაზღვრულია"
+                ]
+            }
+        ]
+    }
+]
