@@ -20,7 +20,9 @@ User = get_user_model()
 
 class ActivationEmail(email.ActivationEmail):
     template_name = 'activateEmail.html'
-    
+
+class ResetPasswordEmail(email.PasswordResetEmail):
+    template_name = 'resetPass.html'
 
 # class CustomUserCreate(APIView):
 #     permission_classes = [AllowAny]
@@ -109,11 +111,11 @@ class CustomTokenCreateView(TokenObtainPairView):
                     return Response({'tokens': super().post(request, *args, **kwargs).data, 'response': response})
             
             else:
-                return Response({'error': 'Email or Password is worng'})
+                return Response({'error': 'Email or Password is worng'}, status=status.HTTP_400_BAD_REQUEST)
             
         except Exception as error:
 
-            return Response({'error': f'{error}'})
+            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 
 # wesit yvelaferi mushaobs gatestvaga unda
 class CourseOpenView(views.APIView):

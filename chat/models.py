@@ -26,10 +26,17 @@ class Message(models.Model):
 
     def __str__(self) -> str:
         return self.sender.user_name
-    
+    # arasworad aris dasortili
     def last_10_messages(room_name):
         room = Room.objects.get(name=room_name)
         messages = Message.objects.filter(room=room)
-        return messages[:10]
+        return messages[:100]
+    
+
+class FriendRequest(models.Model):
+    sender = models.ForeignKey(User, related_name="request_sender", on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name="request_receiver", on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(default=timezone.now)
+
     
 

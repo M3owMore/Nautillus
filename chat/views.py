@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from .models import Room
+from .models import Room, FriendRequest
 from rest_framework import generics
 from rest_framework import permissions 
 from .serializers import RoomSerializer, UserFriendsSerializer
@@ -148,8 +148,87 @@ class FriendsList(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        user = User.objects.filter(user_name=request.user.user_name)[0]
-        serializer = UserFriendsSerializer(user.friends.all(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            user = User.objects.filter(user_name=request.user.user_name)[0]
+            serializer = UserFriendsSerializer(user.friends.all(), many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Exception as error:
+                return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+class AddFriends(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user = User.objects.filter(user_name=request.user.user_name)[0]
+            friend = User.objects.filter(user_name=request.data['user_name'])[0]
+
+            if user.friends.all().filter(user_name=friend.user_name):
+                return Response({"error": 'user is already friend'}, status=status.HTTP_400_BAD_REQUEST)
+
+            elif FriendRequest.objects.filter(receiver=user, sender=friend):
+                user.friends.add(friend)
+                friend.friends.add(user)
+                FriendRequest.objects.filter(receiver=user, sender=friend).delete()
+                serializer = UserFriendsSerializer(friend)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            
+            else:
+                return Response({"error": 'user is not in requests'}, status=status.HTTP_400_BAD_REQUEST)
+    
+        except Exception as error:
+                return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class RequestAddFriends(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            sender_user = User.objects.filter(user_name=request.user.user_name)[0]
+            reciever_user = User.objects.filter(user_name=request.data['user_name'])[0]
+
+            if FriendRequest.objects.filter(sender=sender_user, receiver=reciever_user) or FriendRequest.objects.filter(receiver=sender_user, sender=reciever_user):
+                return Response({"error": 'you have already sent request'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            else:
+                FriendRequest.objects.create(sender=sender_user, receiver=reciever_user)
+                
+            serializer = UserFriendsSerializer(reciever_user)
+        
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as error:
+            return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
         
 
+
+
+class ReturnUserInfo(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user = User.objects.filter(user_name=request.data['user_name'])[0]
+            serializer = UserFriendsSerializer(user)
+            request_user = User.objects.filter(user_name=request.user.user_name)[0]
+            request_user_info = {
+                'user_name': request_user.user_name,
+                'sended_request': False,
+                'friend': False,
+                'received_request': False
+            }
+            if FriendRequest.objects.filter(sender=request_user, receiver=user):
+                request_user_info['sended_request'] = True
+            if FriendRequest.objects.filter(sender=user, receiver=request_user):
+                request_user_info['received_request'] = True
+            if request_user.friends.all().filter(user_name=user.user_name):
+                request_user_info['friend'] = True
+
+            return Response({"serializer_data": serializer.data, "user_info": request_user_info}, status=status.HTTP_200_OK)
+        
+        except Exception as error:
+            return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
