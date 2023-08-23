@@ -17,5 +17,5 @@ urlpatterns = [
     path("api/user/add/friends", views.AddFriends.as_view(), name='add-firends'),
     path("api/user/info", views.ReturnUserInfo.as_view(), name='return-user'),
     path("api/user/add/request", views.RequestAddFriends.as_view(), name='friend-request'),
-
+    path("api/user/unfriend", views.Unfriend.as_view(), name='unfriend'),
 ]

@@ -157,7 +157,7 @@ class FriendsList(views.APIView):
         except Exception as error:
                 return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
     
-    
+
 class AddFriends(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -205,8 +205,6 @@ class RequestAddFriends(views.APIView):
             return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
         
 
-
-
 class ReturnUserInfo(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -229,6 +227,22 @@ class ReturnUserInfo(views.APIView):
                 request_user_info['friend'] = True
 
             return Response({"serializer_data": serializer.data, "user_info": request_user_info}, status=status.HTTP_200_OK)
+        
+        except Exception as error:
+            return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class Unfriend(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user = User.objects.filter(user_name=request.data['user_name'])[0]
+            serializer = UserFriendsSerializer(user)
+            request_user = User.objects.filter(user_name=request.user.user_name)[0]
+            request_user.friends.remove(user)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
         except Exception as error:
             return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)

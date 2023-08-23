@@ -15,3 +15,9 @@ class Course(models.Model):
     def __str__(self):
         return self.title
     
+
+class CourseGroup(models.Model):
+    title = models.TextField(max_length=1000)
+    main_text = models.TextField(blank=True) 
+    date_created = models.DateTimeField(default=timezone.now)
+    

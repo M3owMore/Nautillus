@@ -2,7 +2,7 @@ from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer
 from django.contrib.auth import get_user_model
 from .models import UserCourse
-from courses.models import Course
+from courses.models import Course, CourseGroup
 
 User = get_user_model()
 
@@ -36,5 +36,10 @@ class CourseOpenSerializer(serializers.ModelSerializer):
 
 class UserOpenCourseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Course
+        model = CourseGroup
         fields = "__all__"
+
+class ReturnLessonsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseGroup
+        fields = ('id', 'title', 'date_created')

@@ -1,20 +1,18 @@
-from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework import views 
-from rest_framework import generics
+from rest_framework import views, generics, permissions, status
 # from .serializers import RegisterUserSerializer
-from rest_framework import permissions
-from rest_framework import status
 from djoser import email
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
-from courses.models import Course
+from courses.models import CourseGroup
 from .models import UserCourse
-from .serializers import CourseOpenSerializer, UserOpenCourseSerializer
+from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer
+from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from rest_framework.exceptions import NotFound
+
 
 User = get_user_model()
 
@@ -118,17 +116,30 @@ class CustomTokenCreateView(TokenObtainPairView):
             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 
 # wesit yvelaferi mushaobs gatestvaga unda
-class CourseOpenView(views.APIView):
+class CourseOpenView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    queryset = UserCourse.objects.all()
+    pagination_class = PageNumberPagination
+    serializer_class = UserOpenCourseSerializer
+    
+    def get_queryset(self):
+        try:
+            user = self.request.user 
 
-    def get(self, request, title):
-        user = request.user 
-        userCourses = UserCourse.objects.filter(user=user)
-        chosenCourse = userCourses.filter(title=title)[0]
-        chosenCourse.opened_at = timezone.datetime.now()
-        chosenCourse.save()
-        serializer = UserOpenCourseSerializer(chosenCourse.course)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            # save opend time
+            userCourses = UserCourse.objects.filter(user=user)
+            if userCourses:
+                chosenCourse = userCourses.filter(title=self.kwargs.get('pk'))[0]
+                chosenCourse.opened_at = timezone.datetime.now()
+                chosenCourse.save()
+
+                course = CourseGroup.objects.filter(title__contains=self.kwargs.get('pk'))
+                
+                return course
+        
+        except Exception as error:
+
+            raise NotFound(detail=f'{error}')
 
 
 class UserCoursesList(views.APIView):
@@ -138,6 +149,15 @@ class UserCoursesList(views.APIView):
         user = request.user 
         sorted_courses = UserCourse.objects.filter(user=user).order_by('-opened_at')
         serializer = CourseOpenSerializer(sorted_courses, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReturnLessons(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, course_name):
+        chosenCourse = CourseGroup.objects.filter(title__contains=course_name)
+        serializer = ReturnLessonsSerializer(chosenCourse, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 # jwt/refresh is dros bazashi useri ar chans
