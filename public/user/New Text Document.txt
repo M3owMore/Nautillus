@@ -1,0 +1,31 @@
+from PIL import Image, ImageEnhance
+
+def change_hue(image, delta):
+    hsv_image = image.convert('HSV')
+    hue, saturation, value = hsv_image.split()
+
+    hue = hue.point(lambda h: (h + delta) % 256)
+
+    modified_hsv_image = Image.merge('HSV', (hue, saturation, value))
+    modified_rgb_image = modified_hsv_image.convert('RGB')
+    
+    return modified_rgb_image
+
+def create_variations(original_image, hue_steps):
+    variations = []
+    for hue_delta in hue_steps:
+        modified_image = change_hue(original_image, hue_delta)
+        variations.append(modified_image)
+    
+    return variations
+
+if __name__ == "__main__":
+    original_image = Image.open("user1.png")
+    
+    # Define the hue adjustments for the 16 variations
+    hue_steps = [-30, -20, -10, 0, 10, 20, 30, -15, -5, 5, 15, -25, -35, 25, 35, 0]
+    
+    image_variations = create_variations(original_image, hue_steps)
+    
+    for i, variation in enumerate(image_variations):
+        variation.save(f"output_variation_{i+1}.png")
