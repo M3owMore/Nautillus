@@ -13,7 +13,7 @@ class CourseList(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
-    queryset = queryset.order_by('-date_created')        
+    queryset = queryset.order_by('-date_created')  
 
 
 class CourseDetail(generics.RetrieveAPIView):

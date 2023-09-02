@@ -11,8 +11,10 @@ from courses.models import CourseGroup
 from .models import UserCourse
 from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
-from rest_framework.exceptions import NotFound
-
+from rest_framework.exceptions import NotFound, APIException
+import docker
+import time
+import threading
 
 User = get_user_model()
 
@@ -120,6 +122,7 @@ class CourseOpenView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = UserCourse.objects.all()
     pagination_class = PageNumberPagination
+    pagination_class.page_size = 1
     serializer_class = UserOpenCourseSerializer
     
     def get_queryset(self):
@@ -160,5 +163,114 @@ class ReturnLessons(views.APIView):
         serializer = ReturnLessonsSerializer(chosenCourse, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
+class ExecuteCodeAPIView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user_code = request.data.get('code')
+            language = request.data.get('language')
+
+            if not user_code:
+                return Response({'error': 'No code provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+            client = docker.from_env()
+
+            if  language == 'python':
+                container = client.containers.run(
+                'python:latest',
+                command=f'python -c "{user_code}"',
+                remove=True
+            )
+
+            if language == 'c++':
+                container = client.containers.run(
+                'gcc:latest',
+                command=['sh', '-c', f'echo \'{user_code}\' > main.cpp && g++ -o main main.cpp && ./main'],
+                remove=True
+            )
+
+            if language == 'ruby':
+                container = client.containers.run(
+                'ruby:latest',
+                command=['ruby', '-e', user_code],
+                remove=True
+            )
+
+            output = container.decode('utf-8')
+
+            return Response({'output': output}, status=status.HTTP_200_OK) 
+
+        except Exception as error:
+             return Response({'output': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+    
+{
+    "language": "c++",
+    "code": "#include <iostream>\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}"
+}
+
+{
+    "language": "c++",
+    "code": "#include <iostream>\n\nint main() {\n    for (int i = 1; i <= 200000000; ++i) {\n        std::cout << i << \" \";\n    }\n    \n    std::cout << std::endl;\n    return 0;\n}"
+}
+
+
+
+
+# # code of only three docker containers
+
+# class ExecuteCodeAPIView(views.APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+        
+#     def timeout_handler(self, container, client):
+#         container.kill()
+#         print('kill')
+#         container.start()
+#         client.close()
+
+#     def post(self, request):
+#         try:
+#             client = docker.from_env()
+#             language = request.data.get('language')
+#             user_code = request.data.get('code')
+
+#             # Get the reference to the existing Python container
+#             if  language == 'python':
+#                 container = client.containers.get('63cea44c53860fac665ac02e10f60ccef1592314c73ba3490af8660cb45e47ad')
+#                 command = f'python -c "{user_code}"'
+
+#             if language == 'c++':
+#                 container = client.containers.get('a4786a8e90abbfb67f6c08c46defe33649f3cb55f0e471d376d6934456fdca0c')
+#                 command=['sh', '-c', f'echo \'{user_code}\' > main.cpp && g++ -o main main.cpp && ./main']
+
+#             if language == 'ruby':
+#                 container = client.containers.get('21f86fd8217195c3a8614ea06f99b0baac3aec3379973ddd37fe5341573f9d6c')
+#                 command = ['ruby', '-e', user_code]
+
+#             timer = threading.Timer(10, self.timeout_handler, args=(container, client))
+
+#             timer.start()
+
+#             exec_result = container.exec_run(command, stdout=True, stderr=True, tty=True)
+        
+#             try:
+#                 output = exec_result.output.decode('utf-8')
+#                 if output:
+#                     timer.cancel()
+#                     return Response({'output': output}, status=status.HTTP_200_OK) 
+#                 else:
+#                     return Response({'output': 'process stopped'}, status=status.HTTP_400_BAD_REQUEST)
+#             except Exception as error:
+#                 return Response({'output': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+            
+#         except Exception as error:
+#             return Response({'output': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+    
+
 # jwt/refresh is dros bazashi useri ar chans
+
 

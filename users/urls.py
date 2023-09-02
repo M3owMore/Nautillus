@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import BlacklistTokenUpdateView, RemoveExpiredTokens, CustomTokenCreateView, CourseOpenView, UserCoursesList, ReturnLessons
+from .views import BlacklistTokenUpdateView, RemoveExpiredTokens, CustomTokenCreateView, CourseOpenView, UserCoursesList, ReturnLessons, ExecuteCodeAPIView
 
 app_name = 'users'
 
@@ -12,5 +12,6 @@ urlpatterns = [
     path('delete-expired-tokens/', RemoveExpiredTokens.as_view(), name='delete_expired_tokens'),
     path('courses/lessons/<str:course_name>', ReturnLessons.as_view(), name='user-opened-course-lessons'),
     path('courses/<str:pk>/', CourseOpenView.as_view(), name='user-opened-course'),
-    path('courses/', UserCoursesList.as_view(), name='user-courses')
+    path('courses/', UserCoursesList.as_view(), name='user-courses'),
+    path('execute/', ExecuteCodeAPIView.as_view(), name='code-execute'),
 ]
