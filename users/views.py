@@ -199,11 +199,11 @@ class ExecuteCodeAPIView(views.APIView):
             )
 
             output = container.decode('utf-8')
-
+            
+            if output == '':
+                return Response({'output': 'process time outed'}, status=status.HTTP_400_BAD_REQUEST) 
+            
             return Response({'output': output}, status=status.HTTP_200_OK) 
-
-        except Exception as error:
-             return Response({'output': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
     
 {
     "language": "c++",
