@@ -42,4 +42,4 @@ class UserOpenCourseSerializer(serializers.ModelSerializer):
 class ReturnLessonsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseGroup
-        fields = ('id', 'title', 'date_created')
+        fields = ('id', 'title', 'code', 'date_created')

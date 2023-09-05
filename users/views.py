@@ -174,24 +174,37 @@ class ExecuteCodeAPIView(views.APIView):
 
             if not user_code:
                 return Response({'error': 'No code provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if (user_code.__contains__('import os') 
+                or user_code.__contains__("import pty")
+                or user_code.__contains__("import time")
+                or user_code.__contains__('#include <cstdlib>') 
+                or user_code.__contains__('#include <filesystem>') 
+                or user_code.__contains__('#include <stdlib.h>') 
+                or user_code.__contains__('system()') 
+                or user_code.__contains__('sleep') 
+                or user_code.__contains__("require 'open3'") 
+                or user_code.__contains__('require "open3"')):
+
+                return Response({'error': 'activity not allowed!'}, status=status.HTTP_400_BAD_REQUEST)
 
             client = docker.from_env()
 
-            if  language == 'python':
+            if  language == 'Python':
                 container = client.containers.run(
                 'python:latest',
-                command=f'python -c "{user_code}"',
+                command=['python', '-c', user_code],
                 remove=True
             )
 
-            if language == 'c++':
+            if language == 'C++':
                 container = client.containers.run(
                 'gcc:latest',
                 command=['sh', '-c', f'echo \'{user_code}\' > main.cpp && g++ -o main main.cpp && ./main'],
                 remove=True
             )
 
-            if language == 'ruby':
+            if language == 'Ruby':
                 container = client.containers.run(
                 'ruby:latest',
                 command=['ruby', '-e', user_code],
@@ -199,11 +212,15 @@ class ExecuteCodeAPIView(views.APIView):
             )
 
             output = container.decode('utf-8')
-
+            
+            if output == '':
+                return Response({'output': 'process time outed'}, status=status.HTTP_400_BAD_REQUEST) 
+            
             return Response({'output': output}, status=status.HTTP_200_OK) 
 
+
         except Exception as error:
-             return Response({'output': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
     
 {
     "language": "c++",

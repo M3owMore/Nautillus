@@ -19,5 +19,6 @@ class Course(models.Model):
 class CourseGroup(models.Model):
     title = models.TextField(max_length=1000)
     main_text = models.TextField(blank=True) 
+    code = models.TextField(blank=True) 
     date_created = models.DateTimeField(default=timezone.now)
     
