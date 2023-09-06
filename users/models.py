@@ -42,6 +42,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     friends = models.ManyToManyField('self', blank=True)
+    profile_picture = models.IntegerField(blank=True, default=False)
     objects = CustomAccountManager()
 
     USERNAME_FIELD = 'email'

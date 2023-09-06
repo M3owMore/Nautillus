@@ -156,7 +156,24 @@ class FriendsList(views.APIView):
         
         except Exception as error:
                 return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
-    
+        
+
+class FriendRequestList(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            friend_requests = FriendRequest.objects.filter(receiver=request.user)
+            senders = []
+            for friend_request in friend_requests:
+                senders.append(friend_request.sender)
+            print(senders)
+            serializer = UserFriendsSerializer(senders, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Exception as error:
+                return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 class AddFriends(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -192,7 +209,7 @@ class RequestAddFriends(views.APIView):
             reciever_user = User.objects.filter(user_name=request.data['user_name'])[0]
 
             if FriendRequest.objects.filter(sender=sender_user, receiver=reciever_user) or FriendRequest.objects.filter(receiver=sender_user, sender=reciever_user):
-                return Response({"error": 'you have already sent request'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": 'request has been already sent'}, status=status.HTTP_400_BAD_REQUEST)
             
             else:
                 FriendRequest.objects.create(sender=sender_user, receiver=reciever_user)
@@ -200,6 +217,23 @@ class RequestAddFriends(views.APIView):
             serializer = UserFriendsSerializer(reciever_user)
         
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as error:
+            return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FriendRequestDecline(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            receiver_user = User.objects.filter(user_name=request.user.user_name)[0]
+            sender_user = User.objects.filter(user_name=request.data['user_name'])[0]
+
+            FriendRequest.objects.filter(sender=sender_user, receiver=receiver_user)[0].delete()
+            
+        
+            return Response({"output": 'request succesfuly deleted'}, status=status.HTTP_200_OK)
 
         except Exception as error:
             return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
@@ -238,9 +272,25 @@ class Unfriend(views.APIView):
     def post(self, request):
         try:
             user = User.objects.filter(user_name=request.data['user_name'])[0]
-            serializer = UserFriendsSerializer(user)
             request_user = User.objects.filter(user_name=request.user.user_name)[0]
             request_user.friends.remove(user)
+
+            serializer = UserFriendsSerializer(user)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Exception as error:
+            return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class SearchUser(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user = User.objects.filter(user_name__icontains=request.data['user_name'])
+
+            serializer = UserFriendsSerializer(user, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         

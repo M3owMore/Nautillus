@@ -216,7 +216,7 @@ DJOSER = {
     'SEND_CONFIRMATION_EMAIL': True,
     'SERIALIZERS':{
         'user_create': 'users.serializers.UserCreateSerializer',
-        'user': 'users.serializers.UserCreateSerializer',
+        'current_user': 'users.serializers.ReturnUserSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer',
     },
     'PERMISSIONS': {

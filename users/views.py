@@ -13,8 +13,6 @@ from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnL
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.exceptions import NotFound, APIException
 import docker
-import time
-import threading
 
 User = get_user_model()
 
@@ -232,6 +230,15 @@ class ExecuteCodeAPIView(views.APIView):
     "code": "#include <iostream>\n\nint main() {\n    for (int i = 1; i <= 200000000; ++i) {\n        std::cout << i << \" \";\n    }\n    \n    std::cout << std::endl;\n    return 0;\n}"
 }
 
+class ChangeProfilePicture(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        pfp_number = request.data['pfp_number']
+        user = request.user
+        user.profile_picture = pfp_number
+        user.save()
+        return Response({'pfp_number': user.profile_picture}, status=status.HTTP_200_OK) 
 
 
 

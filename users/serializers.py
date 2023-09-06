@@ -3,6 +3,7 @@ from djoser.serializers import UserCreateSerializer
 from django.contrib.auth import get_user_model
 from .models import UserCourse
 from courses.models import Course, CourseGroup
+from djoser.serializers import UserSerializer
 
 User = get_user_model()
 
@@ -43,3 +44,9 @@ class ReturnLessonsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseGroup
         fields = ('id', 'title', 'code', 'date_created')
+
+class ReturnUserSerializer(UserSerializer):    
+    class Meta(UserSerializer.Meta):
+        model = User
+        read_only_fields = ('email', 'profile_picture')
+        fields = ('id', 'email', 'user_name', 'profile_picture')
