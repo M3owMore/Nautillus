@@ -1,5 +1,15 @@
 from django.urls import path, include
-from .views import BlacklistTokenUpdateView, RemoveExpiredTokens, CustomTokenCreateView, CourseOpenView, UserCoursesList, ReturnLessons, ExecuteCodeAPIView, ChangeProfilePicture
+from .views import (BlacklistTokenUpdateView, 
+                    RemoveExpiredTokens, 
+                    CustomTokenCreateView, 
+                    CourseOpenView, 
+                    UserCoursesList, 
+                    ReturnLessons, 
+                    ExecuteCodeAPIView, 
+                    ChangeProfilePicture, 
+                    PayPalPaymentAPIView, 
+                    PayPalExecuteAPIView,
+                )
 
 app_name = 'users'
 
@@ -15,4 +25,6 @@ urlpatterns = [
     path('courses/', UserCoursesList.as_view(), name='user-courses'),
     path('execute/', ExecuteCodeAPIView.as_view(), name='code-execute'),
     path('change-pfp/', ChangeProfilePicture.as_view(), name='change-pfp'),
+    path('paypal/create_payment/', PayPalPaymentAPIView.as_view(), name='create-payment'),
+    path('paypal/execute/', PayPalExecuteAPIView.as_view(), name='execute-payment'),
 ]

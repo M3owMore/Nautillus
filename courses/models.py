@@ -8,7 +8,7 @@ class Course(models.Model):
     description = models.TextField(max_length=5000000)
     big_description = models.TextField(blank=True) 
     topics = models.TextField(max_length=5000000, blank=True)
-    main_text = models.TextField(blank=True) 
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False)
     date_created = models.DateTimeField(default=timezone.now)
 
 

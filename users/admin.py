@@ -5,6 +5,8 @@ from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea, CharField
 from django import forms
 from django.db import models
+from django.contrib.admin import ModelAdmin
+
 
 
 class UserAdminConfig(UserAdmin):
@@ -28,8 +30,12 @@ class UserAdminConfig(UserAdmin):
             'fields': ('email', 'user_name', 'password1', 'password2', 'is_active', 'is_staff')}
          ),
     )
+
+class UserCourseAdminConfig(ModelAdmin):
+    model = UserCourse
+    list_display = ('title', 'user', 'id')
     
 
 
 admin.site.register(NewUser, UserAdminConfig)
-admin.site.register(UserCourse)
+admin.site.register(UserCourse, UserCourseAdminConfig)

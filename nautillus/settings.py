@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from cryptography.fernet import Fernet
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -244,6 +245,9 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'kinggurieli@gmail.com'
 EMAIL_HOST_PASSWORD = 'ghytakfiqzvlojtu'
 EMAIL_USE_TLS = True
+
+
+FERNET_KEY = Fernet.generate_key()
 
 CACHES = {
     "default": {

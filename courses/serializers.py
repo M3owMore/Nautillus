@@ -6,4 +6,4 @@ from django.conf import settings
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ('id', 'title', 'level', 'description', 'big_description', 'topics', 'date_created')
+        fields = ('id', 'title', 'level', 'description', 'big_description', 'topics', 'price', 'date_created')

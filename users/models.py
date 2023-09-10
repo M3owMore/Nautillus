@@ -66,3 +66,6 @@ class UserCourse(models.Model):
         if not self.level:
             self.level = self.course.level
         super(UserCourse, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title

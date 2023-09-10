@@ -1,3 +1,4 @@
+from typing import Any
 from rest_framework.response import Response
 from rest_framework import views, generics, permissions, status
 # from .serializers import RegisterUserSerializer
@@ -13,6 +14,12 @@ from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnL
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.exceptions import NotFound, APIException
 import docker
+from paypalrestsdk import Payment
+import paypalrestsdk
+from courses.models import Course
+from cryptography.fernet import Fernet
+from nautillus.settings import FERNET_KEY
+
 
 User = get_user_model()
 
@@ -21,23 +28,6 @@ class ActivationEmail(email.ActivationEmail):
 
 class ResetPasswordEmail(email.PasswordResetEmail):
     template_name = 'resetPass.html'
-
-# class CustomUserCreate(APIView):
-#     permission_classes = [AllowAny]
-
-#     def post(self, request):
-#         reg_serializer = RegisterUserSerializer(data=request.data)
-
-#         if reg_serializer.is_valid():
-#             newuser = reg_serializer.save()
-
-#             if newuser:
-#                 return Response(status=status.HTTP_201_CREATED)
-        
-#         return Response(reg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# users mivcet limiti tokenebis dagenerirebis max 5 cali
 
 class BlacklistTokenUpdateView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -51,10 +41,7 @@ class BlacklistTokenUpdateView(views.APIView):
         except Exception as error:
             return Response(f"error: {error}", status=status.HTTP_400_BAD_REQUEST)
 
-# problema aris rom tu users aqvs 5 vadagasuli tokeni da accdan gamosulia 
-# aq vegar gaigzavneba requesti radgan useri unda iyos accze shesabamisad verc vadagasuli tokenebi waishleba
-# anu vegarc accze sheva useri
-# aseve dablacklistebuli tokenebic unda waishalos
+
 class RemoveExpiredTokens(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -92,7 +79,6 @@ class CustomTokenCreateView(TokenObtainPairView):
                 if expired_tokens:
                     expired_tokens.delete()
                     response['expired tokens'] = 'deleted'
-                    print("Expired tokens are deleted") # wasashleli
                 
                 existing_tokens = OutstandingToken.objects.filter(user=user)
                 for existing_token in existing_tokens:
@@ -115,7 +101,7 @@ class CustomTokenCreateView(TokenObtainPairView):
 
             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 
-# wesit yvelaferi mushaobs gatestvaga unda
+
 class CourseOpenView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = UserCourse.objects.all()
@@ -126,9 +112,10 @@ class CourseOpenView(generics.ListAPIView):
     def get_queryset(self):
         try:
             user = self.request.user 
+            purchased_course = Course.objects.filter(title=self.kwargs.get('pk'))[0]
 
             # save opend time
-            userCourses = UserCourse.objects.filter(user=user)
+            userCourses = UserCourse.objects.filter(user=user, course=purchased_course)
             if userCourses:
                 chosenCourse = userCourses.filter(title=self.kwargs.get('pk'))[0]
                 chosenCourse.opened_at = timezone.datetime.now()
@@ -137,6 +124,8 @@ class CourseOpenView(generics.ListAPIView):
                 course = CourseGroup.objects.filter(title__contains=self.kwargs.get('pk'))
                 
                 return course
+            else:
+                raise NotFound(detail=f'you do not have this course')
         
         except Exception as error:
 
@@ -179,10 +168,12 @@ class ExecuteCodeAPIView(views.APIView):
                 or user_code.__contains__('#include <cstdlib>') 
                 or user_code.__contains__('#include <filesystem>') 
                 or user_code.__contains__('#include <stdlib.h>') 
-                or user_code.__contains__('system()') 
+                or user_code.__contains__('system') 
                 or user_code.__contains__('sleep') 
                 or user_code.__contains__("require 'open3'") 
-                or user_code.__contains__('require "open3"')):
+                or user_code.__contains__('require "open3"')
+                or user_code.__contains__('exec')
+                or user_code.__contains__('spawn')):
 
                 return Response({'error': 'activity not allowed!'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -212,23 +203,14 @@ class ExecuteCodeAPIView(views.APIView):
             output = container.decode('utf-8')
             
             if output == '':
-                return Response({'output': 'process time outed'}, status=status.HTTP_400_BAD_REQUEST) 
+                return Response({'error': 'process time outed'}, status=status.HTTP_400_BAD_REQUEST) 
             
             return Response({'output': output}, status=status.HTTP_200_OK) 
 
 
         except Exception as error:
-             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
-    
-{
-    "language": "c++",
-    "code": "#include <iostream>\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}"
-}
+            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 
-{
-    "language": "c++",
-    "code": "#include <iostream>\n\nint main() {\n    for (int i = 1; i <= 200000000; ++i) {\n        std::cout << i << \" \";\n    }\n    \n    std::cout << std::endl;\n    return 0;\n}"
-}
 
 class ChangeProfilePicture(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -239,61 +221,87 @@ class ChangeProfilePicture(views.APIView):
         user.profile_picture = pfp_number
         user.save()
         return Response({'pfp_number': user.profile_picture}, status=status.HTTP_200_OK) 
-
-
-
-# # code of only three docker containers
-
-# class ExecuteCodeAPIView(views.APIView):
-#     permission_classes = [permissions.IsAuthenticated]
-        
-#     def timeout_handler(self, container, client):
-#         container.kill()
-#         print('kill')
-#         container.start()
-#         client.close()
-
-#     def post(self, request):
-#         try:
-#             client = docker.from_env()
-#             language = request.data.get('language')
-#             user_code = request.data.get('code')
-
-#             # Get the reference to the existing Python container
-#             if  language == 'python':
-#                 container = client.containers.get('63cea44c53860fac665ac02e10f60ccef1592314c73ba3490af8660cb45e47ad')
-#                 command = f'python -c "{user_code}"'
-
-#             if language == 'c++':
-#                 container = client.containers.get('a4786a8e90abbfb67f6c08c46defe33649f3cb55f0e471d376d6934456fdca0c')
-#                 command=['sh', '-c', f'echo \'{user_code}\' > main.cpp && g++ -o main main.cpp && ./main']
-
-#             if language == 'ruby':
-#                 container = client.containers.get('21f86fd8217195c3a8614ea06f99b0baac3aec3379973ddd37fe5341573f9d6c')
-#                 command = ['ruby', '-e', user_code]
-
-#             timer = threading.Timer(10, self.timeout_handler, args=(container, client))
-
-#             timer.start()
-
-#             exec_result = container.exec_run(command, stdout=True, stderr=True, tty=True)
-        
-#             try:
-#                 output = exec_result.output.decode('utf-8')
-#                 if output:
-#                     timer.cancel()
-#                     return Response({'output': output}, status=status.HTTP_200_OK) 
-#                 else:
-#                     return Response({'output': 'process stopped'}, status=status.HTTP_400_BAD_REQUEST)
-#             except Exception as error:
-#                 return Response({'output': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
-            
-#         except Exception as error:
-#             return Response({'output': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
     
+
+class PayPalPaymentAPIView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        course = Course.objects.filter(title=request.data['title'])[0]
+        user = User.objects.filter(user_name=request.user.user_name)[0]
+
+        if UserCourse.objects.filter(user=user, course=course):
+            return Response({'error': 'this course is already purchased'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            paypalrestsdk.configure({
+                "mode": "sandbox", # sandbox or live
+                "client_id": "AWKbqXDKcVY3rG5A2tSFC9RH6ahhVAWHd69vBcQxSTcvFyT2f69dP46D_8TzYkKal5MlCHyUmLxQ8vmY",
+                "client_secret": "EA1tf4Uk8iEWt24i2cIOYnNa4gl82SVuxQ6g0hXSEOK1BVTzGP-SSloegncN78yDamthz2QqSjvHjV6V" 
+                })
+            
+            key = FERNET_KEY
+            fernet = Fernet(key)
+            encrypted_course_id = fernet.encrypt(str(course.id).encode()).decode()
+
+            paypal_payment = Payment({
+                "intent": "sale",
+                "payer": {
+                    "payment_method": "paypal"
+                },
+                "redirect_urls": {
+                    "return_url": f"http://localhost:5173/payment/execute/{encrypted_course_id}",
+                    "cancel_url": "yourdomain.com/payment/cancel/"
+                },
+                "transactions": [
+                    {
+                        "amount": {
+                            "total": f"{course.price}",  # Replace with your payment amount
+                            "currency": "USD"  # Replace with your currency code
+                        },
+                        "description": "Example payment description"
+                    }
+                ]
+            })
+
+            # Create the payment
+            if paypal_payment.create():
+                # Get the approval URL to redirect the user to PayPal
+                approval_url = next(link.href for link in paypal_payment.links if link.rel == 'approval_url')
+                return Response({'link': approval_url}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'Payment creation failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PayPalExecuteAPIView(PayPalPaymentAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        paypalrestsdk.configure({
+            "mode": "sandbox", # sandbox or live
+            "client_id": "AWKbqXDKcVY3rG5A2tSFC9RH6ahhVAWHd69vBcQxSTcvFyT2f69dP46D_8TzYkKal5MlCHyUmLxQ8vmY",
+            "client_secret": "EA1tf4Uk8iEWt24i2cIOYnNa4gl82SVuxQ6g0hXSEOK1BVTzGP-SSloegncN78yDamthz2QqSjvHjV6V" 
+            })
+        
+        payment_id = request.data['payment_id']
+        payer_id = request.data['payer_id']
+
+        encrypted_course_id = request.data["course_id"]
+        key = FERNET_KEY
+        fernet = Fernet(key)
+        decrypted_course_id = int(fernet.decrypt(encrypted_course_id).decode())
+        course = Course.objects.filter(id=decrypted_course_id)[0]
+
+        payment = Payment.find(payment_id)
+        if payment.execute({"payer_id": payer_id}):
+            user = User.objects.filter(user_name=request.user.user_name)[0]
+            UserCourse.objects.create(user=user, course=course)
+            
+            return Response({'success': 'Payment executed successfully'})
+        else:
+            return Response({'error': 'Payment execution failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 # jwt/refresh is dros bazashi useri ar chans
 

@@ -17,7 +17,9 @@ class Room(models.Model):
 def delete_rooms(sender, instance, **kwargs):
     for room in instance.room_set.all():
         room.delete()
-        
+
+# x mesijebis limiti anu x tu acda mesijebis raodenoba konkretul roomshi unda waishalos wina mesijebi
+# front gavugzavno fotos id ebi     
 class Message(models.Model):
     content = models.TextField()
     sender = models.ForeignKey(User, related_name="sender_messages", on_delete=models.CASCADE)
