@@ -28,11 +28,12 @@ class Message(models.Model):
 
     def __str__(self) -> str:
         return self.sender.user_name
-    # arasworad aris dasortili
-    def last_10_messages(room_name):
+    
+    def ReturnMessages(room_name):
         room = Room.objects.get(name=room_name)
         messages = Message.objects.filter(room=room)
-        return messages[:100]
+
+        return messages
     
 
 class FriendRequest(models.Model):
