@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer
 from django.contrib.auth import get_user_model
-from .models import UserCourse
+from .models import UserCourse, Notification
 from courses.models import Course, CourseGroup
 from djoser.serializers import UserSerializer
 
@@ -50,3 +50,8 @@ class ReturnUserSerializer(UserSerializer):
         model = User
         read_only_fields = ('email', 'profile_picture')
         fields = ('id', 'email', 'user_name', 'profile_picture')
+
+class NotificationSerializer(UserSerializer):    
+    class Meta(UserSerializer.Meta):
+        model = Notification
+        fields = "__all__"

@@ -13,6 +13,7 @@ urlpatterns = [
     path("api/chat/<str:pk>/", views.RoomDetail.as_view(), name="room-details"),
     path("api/chat/<str:pk>/update", views.RoomUpdate.as_view(), name="room-update"),
     path("api/chat/<str:pk>/delete", views.RoomDestroy.as_view(), name="room-destroy"),
+    path("api/chat-notifications", views.CheckChatNotifications.as_view(), name='chat-notifications'),
     path("api/user/friends/", views.FriendsList.as_view(), name='firends-list'),
     path("api/user/friend-requests/", views.FriendRequestList.as_view(), name='firends-request-list'),
     path("api/user/add/friends", views.AddFriends.as_view(), name='add-firends'),

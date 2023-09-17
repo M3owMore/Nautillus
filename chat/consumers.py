@@ -1,23 +1,65 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import Message, Room
+from .models import Message, Room, DisconnectTime, ConnectTime
 from users.models import NewUser
 from django.contrib.auth import get_user_model
 from asgiref.sync import sync_to_async
 import asyncio
-
+from django.utils import timezone 
 
 User = get_user_model()
 
 class ChatConsumer(AsyncWebsocketConsumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_name = None
+
+
+    @sync_to_async
+    def save_disconnect_time(self, user_name, room_name):
+        if user_name:
+            print(user_name)
+            user = User.objects.filter(user_name=user_name)[0]
+            room = Room.objects.filter(name=room_name)[0]
+
+            user_disconnect_time = DisconnectTime.objects.filter(user=user, room=room)
+            if user_disconnect_time:
+                user_disconnect_time[0].time = timezone.now()
+                user_disconnect_time[0].save()
+            else:
+                DisconnectTime.objects.create(user=user, room=room)
+        else:
+            print("no user name")
+    
+    def save_connect_time(self, user_name, room_name):
+        if user_name:
+            print(user_name)
+            user = User.objects.filter(user_name=user_name)[0]
+            room = Room.objects.filter(name=room_name)[0]
+
+            user_connect_time = ConnectTime.objects.filter(user=user, room=room)
+            if user_connect_time:
+                user_connect_time[0].time = timezone.now()
+                user_connect_time[0].save()
+            else:
+                ConnectTime.objects.create(user=user, room=room)
+        else:
+            print("no user name")
+
+
     @sync_to_async
     def fetch_messages(self, data):
+        self.user_name = data['user_name']
+
         messages = Message.ReturnMessages(data['room_name'])
         content = {
             'command': 'fetch_messages',
             'messages': self.messages_to_json(messages)
         }
+
+        self.save_connect_time(self.user_name, self.room_group_name)
+
         asyncio.run(self.send_message(content))
 
     @sync_to_async
@@ -67,6 +109,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+        await self.save_disconnect_time(self.user_name, self.room_group_name)
         await self.channel_layer.group_discard(
             self.room_group_name, self.channel_name
         )

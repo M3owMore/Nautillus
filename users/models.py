@@ -69,3 +69,9 @@ class UserCourse(models.Model):
 
     def __str__(self):
         return self.title
+    
+
+class Notification(models.Model):
+    title = models.TextField(max_length=1000)
+    content = models.TextField(max_length=5000000)
+    date_created = models.DateTimeField(default=timezone.now)

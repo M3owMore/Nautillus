@@ -9,8 +9,8 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from courses.models import CourseGroup
-from .models import UserCourse
-from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer
+from .models import UserCourse, Notification
+from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer, NotificationSerializer
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.exceptions import NotFound, APIException
 import docker
@@ -19,7 +19,7 @@ import paypalrestsdk
 from courses.models import Course
 from cryptography.fernet import Fernet
 from nautillus.settings import FERNET_KEY
-
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -300,6 +300,16 @@ class PayPalExecuteAPIView(PayPalPaymentAPIView):
             return Response({'success': 'Payment executed successfully'})
         else:
             return Response({'error': 'Payment execution failed'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class ReturnNotifications(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        date = timezone.now() - timedelta(days=7)
+        last_7_days_notifications = Notification.objects.filter(date_created__gte=date)
+        serializer = NotificationSerializer(last_7_days_notifications, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from users.models import NewUser
-from users.models import UserCourse
+from users.models import UserCourse, Notification
 from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea, CharField
 from django import forms
@@ -34,8 +34,14 @@ class UserAdminConfig(UserAdmin):
 class UserCourseAdminConfig(ModelAdmin):
     model = UserCourse
     list_display = ('title', 'user', 'id')
+
+
+class NotificationAdminConfig(ModelAdmin):
+    model = Notification
+    list_display = ('title', 'id')
     
 
 
 admin.site.register(NewUser, UserAdminConfig)
 admin.site.register(UserCourse, UserCourseAdminConfig)
+admin.site.register(Notification, NotificationAdminConfig)

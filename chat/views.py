@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from .models import Room, FriendRequest
+from .models import Room, FriendRequest, Message, DisconnectTime, ConnectTime
 from rest_framework import generics
 from rest_framework import permissions 
 from .serializers import RoomSerializer, UserFriendsSerializer
@@ -10,7 +10,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import views 
-
+import json
 
 User = get_user_model()
 
@@ -81,7 +81,7 @@ class Rooms(generics.ListAPIView):
         user = self.request.user
         return Room.objects.filter(accessed_users=user)
             
-
+# gasatesti
 class RoomDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = RoomSerializer
@@ -265,7 +265,6 @@ class ReturnUserInfo(views.APIView):
         except Exception as error:
             return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
         
-
 class Unfriend(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -276,6 +275,12 @@ class Unfriend(views.APIView):
             request_user.friends.remove(user)
 
             serializer = UserFriendsSerializer(user)
+
+            if Room.objects.filter(accessed_users=user).filter(accessed_users=request_user):
+                room = Room.objects.filter(accessed_users=user).filter(accessed_users=request_user)[0]
+                room.delete()
+            else:
+                print('no room on this users')
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         
@@ -296,3 +301,43 @@ class SearchUser(views.APIView):
         
         except Exception as error:
             return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class CheckChatNotifications(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = User.objects.filter(user_name = request.user.user_name)[0]
+        rooms = Room.objects.filter(accessed_users=user)
+        notification_list = []
+
+        for room in rooms:
+            room_dict = {
+            "name": None,
+            "seen": None    
+            }
+            
+            last_massage = Message.objects.filter(room=room).last()
+            try:
+                user_disconnect = DisconnectTime.objects.filter(room=room, user=user)[0]
+                user_connect = ConnectTime.objects.filter(room=room, user=user)[0]
+                
+                if user_connect.time > user_disconnect.time:
+                    room_dict["name"] = room.name
+                    room_dict["seen"] = True
+                    notification_list.append(room_dict)
+
+                elif user_disconnect.time > user_connect.time and last_massage.timestamp > user_disconnect.time:
+                    room_dict["name"] = room.name
+                    room_dict["seen"] = False
+                    notification_list.append(room_dict)
+                
+                elif user_disconnect.time > user_connect.time and last_massage.timestamp < user_disconnect.time:
+                    room_dict["name"] = room.name
+                    room_dict["seen"] = True
+                    notification_list.append(room_dict)
+
+            except Exception as error:
+                print(error)
+        
+        return Response(notification_list, status=status.HTTP_200_OK)

@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone 
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-
 User = get_user_model()
 
 class Room(models.Model):
@@ -41,5 +40,15 @@ class FriendRequest(models.Model):
     receiver = models.ForeignKey(User, related_name="request_receiver", on_delete=models.CASCADE)
     timestamp = models.DateTimeField(default=timezone.now)
 
+
+class DisconnectTime(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    time = models.DateTimeField(default=timezone.now)
     
+
+class ConnectTime(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    time = models.DateTimeField(default=timezone.now)
 
