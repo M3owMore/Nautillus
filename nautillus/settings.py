@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'courses',
     "corsheaders",
     "users",
-    "rest_framework_simplejwt.token_blacklist"
+    "rest_framework_simplejwt.token_blacklist",
+    'blog'
 ]
 
 MIDDLEWARE = [

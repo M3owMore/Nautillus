@@ -9,7 +9,8 @@ from .views import (BlacklistTokenUpdateView,
                     ChangeProfilePicture, 
                     PayPalPaymentAPIView, 
                     PayPalExecuteAPIView,
-                    ReturnNotifications
+                    ReturnNotifications,
+                    ReturnLastUserCoursePage
                 )
 
 app_name = 'users'
@@ -29,4 +30,5 @@ urlpatterns = [
     path('paypal/create_payment/', PayPalPaymentAPIView.as_view(), name='create-payment'),
     path('paypal/execute/', PayPalExecuteAPIView.as_view(), name='execute-payment'),
     path('notifications/', ReturnNotifications.as_view(), name='notifications'),
+    path('courses/last/page/<str:title>', ReturnLastUserCoursePage.as_view(), name='last-user-opened-page'),
 ]

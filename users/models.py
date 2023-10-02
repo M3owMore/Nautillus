@@ -75,3 +75,9 @@ class Notification(models.Model):
     title = models.TextField(max_length=1000)
     content = models.TextField(max_length=5000000)
     date_created = models.DateTimeField(default=timezone.now)
+
+
+class UserCoursePage(models.Model):
+    user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    page = models.IntegerField(null=True, default=1)

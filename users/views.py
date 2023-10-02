@@ -1,4 +1,3 @@
-from typing import Any
 from rest_framework.response import Response
 from rest_framework import views, generics, permissions, status
 # from .serializers import RegisterUserSerializer
@@ -9,7 +8,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from courses.models import CourseGroup
-from .models import UserCourse, Notification
+from .models import UserCourse, Notification, UserCoursePage
 from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer, NotificationSerializer
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.exceptions import NotFound, APIException
@@ -20,6 +19,7 @@ from courses.models import Course
 from cryptography.fernet import Fernet
 from nautillus.settings import FERNET_KEY
 from datetime import timedelta
+from django.http import HttpResponseRedirect
 
 User = get_user_model()
 
@@ -122,6 +122,18 @@ class CourseOpenView(generics.ListAPIView):
                 chosenCourse.save()
 
                 course = CourseGroup.objects.filter(title__contains=self.kwargs.get('pk'))
+
+                user_course_page = UserCoursePage.objects.filter(user=user, course=purchased_course)
+                if user_course_page:
+                    if self.request.GET.get('page'):
+                        user_course_page[0].page = self.request.GET.get('page')
+                        user_course_page[0].save()
+                    else: 
+                        user_course_page[0].page = 1
+                        user_course_page[0].save()
+
+                else:
+                    UserCoursePage.objects.create(user=user, course=purchased_course, page=self.request.GET.get('page'))
                 
                 return course
             else:
@@ -130,6 +142,25 @@ class CourseOpenView(generics.ListAPIView):
         except Exception as error:
 
             raise NotFound(detail=f'{error}')
+
+class ReturnLastUserCoursePage(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, title):
+        try:
+            user = request.user
+            course = Course.objects.filter(title=title)[0]
+
+            user_course_page = UserCoursePage.objects.filter(user=user, course=course)
+            if user_course_page:
+                return Response({'page': user_course_page[0].page}, status=status.HTTP_200_OK)
+            
+            else:
+                return Response({'page': 1}, status=status.HTTP_200_OK)
+            
+        except Exception as error:
+            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class UserCoursesList(views.APIView):
@@ -216,6 +247,7 @@ class ChangeProfilePicture(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        print(request.META.get('REMOTE_ADDR'))
         pfp_number = request.data['pfp_number']
         user = request.user
         user.profile_picture = pfp_number
