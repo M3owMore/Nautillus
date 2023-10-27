@@ -1,2 +1,5 @@
-list = [1, 2, 3, 4, 5, 6, 7, 8]
-i = len(list) - 5
+a = "asdf ljklkj"
+
+b = a.split(" ")
+
+print(b[0])

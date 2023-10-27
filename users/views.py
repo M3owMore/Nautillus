@@ -121,7 +121,7 @@ class CourseOpenView(generics.ListAPIView):
                 chosenCourse.opened_at = timezone.datetime.now()
                 chosenCourse.save()
 
-                course = CourseGroup.objects.filter(title__contains=self.kwargs.get('pk'))
+                course = CourseGroup.objects.filter(keyword=self.kwargs.get('pk'))
 
                 user_course_page = UserCoursePage.objects.filter(user=user, course=purchased_course)
                 if user_course_page:
@@ -177,7 +177,7 @@ class ReturnLessons(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, course_name):
-        chosenCourse = CourseGroup.objects.filter(title__contains=course_name)
+        chosenCourse = CourseGroup.objects.filter(keyword=course_name)
         serializer = ReturnLessonsSerializer(chosenCourse, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
