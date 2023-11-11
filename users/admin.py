@@ -33,7 +33,7 @@ class UserAdminConfig(UserAdmin):
 
 class UserCourseAdminConfig(ModelAdmin):
     model = UserCourse
-    list_display = ('title', 'user', 'id')
+    list_display = ('course', 'user', 'id')
 
 
 class NotificationAdminConfig(ModelAdmin):

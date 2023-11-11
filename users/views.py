@@ -19,7 +19,7 @@ from courses.models import Course
 from cryptography.fernet import Fernet
 from nautillus.settings import FERNET_KEY
 from datetime import timedelta
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 
 User = get_user_model()
 
@@ -87,8 +87,8 @@ class CustomTokenCreateView(TokenObtainPairView):
                         response['blacklisted tokens'] = 'deleted'
 
                         
-                if existing_tokens.count() >= token_limit:
-                    response['error'] = 'Maximum token limit reached.'
+                if existing_tokens.count() > token_limit:
+                    response['error'] = 'Maximum different log in count reached.'
                     return Response(response, status=status.HTTP_403_FORBIDDEN)
 
                 else:
@@ -117,7 +117,7 @@ class CourseOpenView(generics.ListAPIView):
             # save opend time
             userCourses = UserCourse.objects.filter(user=user, course=purchased_course)
             if userCourses:
-                chosenCourse = userCourses.filter(title=self.kwargs.get('pk'))[0]
+                chosenCourse = userCourses.filter(course=purchased_course)[0]
                 chosenCourse.opened_at = timezone.datetime.now()
                 chosenCourse.save()
 
@@ -142,7 +142,18 @@ class CourseOpenView(generics.ListAPIView):
         except Exception as error:
 
             raise NotFound(detail=f'{error}')
+        
 
+# class ReturnLessonImage(views.APIView):
+#     permission_classes = [permissions.AllowAny]
+
+#     def post(self, request):
+#         lesson = CourseGroup.objects.filter(title=request.data["lesson"])[0]
+#         lesson_image = CourseGroupImage.objects.filter(course=lesson)[0]
+
+#         return HttpResponse(lesson_image.image, content_type="image/png")
+
+        
 class ReturnLastUserCoursePage(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -230,10 +241,17 @@ class ExecuteCodeAPIView(views.APIView):
                 command=['ruby', '-e', user_code],
                 remove=True
             )
+                
+            # if language == 'Ubuntu':
+            #     container = client.containers.run(
+            #     'ubuntu:latest',
+            #     command=user_code,
+            #     remove=True
+            # )
 
             output = container.decode('utf-8')
             
-            if output == '':
+            if output == None:
                 return Response({'error': 'process time outed'}, status=status.HTTP_400_BAD_REQUEST) 
             
             return Response({'output': output}, status=status.HTTP_200_OK) 

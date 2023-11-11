@@ -6,7 +6,7 @@ from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
 
 class CustomPagination(PageNumberPagination):
-    page_size = 5
+    page_size = 10
 
     
 class BlogList(generics.ListAPIView):

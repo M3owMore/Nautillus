@@ -55,20 +55,8 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
 class UserCourse(models.Model):
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    title = models.TextField(max_length=1000, blank=True)
-    level = models.TextField(max_length=1000, blank=True)
     opened_at = models.DateTimeField(default=timezone.now)
     purchased_at = models.DateTimeField(default=timezone.now)
-
-    def save(self, *args, **kwargs):
-        if not self.title:
-            self.title = self.course.title
-        if not self.level:
-            self.level = self.course.level
-        super(UserCourse, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.title
     
 
 class Notification(models.Model):

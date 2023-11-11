@@ -30,9 +30,18 @@ class UserCreateSerializer(UserCreateSerializer):
 
 
 class CourseOpenSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    level = serializers.SerializerMethodField()
+
     class Meta:
         model = UserCourse
-        fields = "__all__"
+        fields = ("id", "course", "user", "opened_at", "purchased_at", "title", "level")
+
+    def get_title(self, obj):
+        return obj.course.title if obj.course else None
+
+    def get_level(self, obj):
+        return obj.course.level if obj.course else None
 
 
 class UserOpenCourseSerializer(serializers.ModelSerializer):
@@ -43,7 +52,7 @@ class UserOpenCourseSerializer(serializers.ModelSerializer):
 class ReturnLessonsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseGroup
-        fields = ('id', 'title', 'code', 'date_created')
+        fields = ('id', 'title', 'date_created')
 
 class ReturnUserSerializer(UserSerializer):    
     class Meta(UserSerializer.Meta):

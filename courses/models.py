@@ -32,8 +32,8 @@ class CourseGroup(models.Model):
     def __str__(self):
         return self.title
 
-class CourseGroupImage(models.Model):
-    course = models.ForeignKey(CourseGroup, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='image/', blank=True)
+# class CourseGroupImage(models.Model):
+#     course = models.ForeignKey(CourseGroup, on_delete=models.CASCADE)
+#     image = models.ImageField(upload_to='image/', blank=True)
 
     
