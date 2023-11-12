@@ -11,11 +11,10 @@ import axios from "axios";
 
 const Box = (props:any) => {
     return (
-        <button onClick={() => {window.location.href = `/courses/course/${props.course.title}`}} className="relative  hover:scale-105 hover:bg-bg-4 duration-200 flex flex-col h-40 w-44 p-2 items-center justify-center bg-bg-3 rounded-xl">
-            <p className='text-main  w-full text-center text-md mx-4 font-bold font-bpgESM'>{props.course.title}</p>
-            <p className='text-main  w-full text-center text-xs mx-4 font-arialGeo'>{props.app.langJson.words[props.app.lang].level}: {props.course.level}</p>
+        <button onClick={() => {window.location.href = `/courses/course/${props.course.title}`}} className="relative  hover:scale-105 hover:bg-bg-4 duration-200 flex flex-col h-40 p-2 items-center justify-center bg-bg-3 rounded-xl">
+            <p className='text-main w-24 h-auto text-center text-md mx-4 font-bold font-bpgESM'>{props.course.title}</p>
+            <p className='text-main w-24 h-auto text-center text-xs mx-4 font-arialGeo'>{props.app.langJson.words[props.app.lang].level}: {props.course.level}</p>
             <div className="absolute -z-0 top-0 bottom-0 left-0 right-0 bg-cover bg-center blur-sm opacity-30" style={{backgroundImage: `url(/courses/${props.course.title}.webp)`}}></div>
-
         </button>
     )
 }
@@ -23,6 +22,8 @@ const Box = (props:any) => {
 const Home = (props:any) => {
     const [courses, setCourses] = useState([])
     const [settings, setSettings] = useState(false)
+    const [isFriendRequst, setIsFriendRequst] = useState(false)
+
 
     // relocate if not logined
     useEffect(() => {
@@ -37,7 +38,14 @@ const Home = (props:any) => {
             const res = await axios.get(props.app.backendURL + "api/user/courses/", {headers: {Authorization: 'Bearer ' + props.app.cookies.get('access')}})
             setCourses(res.data)
         }
+
+        const getIfFriendRequst = () => {
+            axios.get(props.app.backendURL + "api/user/friend-requests", {headers: {Authorization: 'Bearer ' + props.app.cookies.get('access')}})
+            .then((res) => {setIsFriendRequst(res.data.length > 0);})
+        }
+
         getData();
+        getIfFriendRequst();
     }, [])
 
     return (
@@ -90,7 +98,11 @@ const Home = (props:any) => {
                         <div className="flex w-full flex-col tablet:flex-row gap-2 items-center justify-around">
                             <div className="flex items-center gap-2">
                                 <Link to={"/user/friends"}><button className="py-1 px-3 text-main font-arialGeo bg-bg-4 rounded-md bg-opacity-60 duration-200 hover:bg-opacity-100 text-xs">  {props.app.langJson.words[props.app.lang].friends}</button></Link>
-                                <Link to={"/user/friends/requests"}><button className="py-1 px-3 text-main font-arialGeo bg-bg-4 rounded-md bg-opacity-60 duration-200 hover:bg-opacity-100 text-xs">  {props.app.langJson.words[props.app.lang].requests}</button></Link>
+                                <Link to={"/user/friends/requests"}><button className="relative py-1 px-3 text-main font-arialGeo bg-bg-4 rounded-md bg-opacity-60 duration-200 hover:bg-opacity-100 text-xs"> 
+                                    {props.app.langJson.words[props.app.lang].requests}
+
+                                    {isFriendRequst ? <div className="bg-red-500 rounded-full h-2 w-2 translate-x-1/3 -translate-y-1/3 right-0 top-0 absolute"></div> : null}
+                                </button></Link>
                             </div>
                             
                             <Link to={"/users/find"}><button className="py-1 px-3 text-main font-arialGeo bg-bg-4 rounded-md bg-opacity-60 duration-200 hover:bg-opacity-100 text-xs">  {props.app.langJson.words[props.app.lang].searchUsers}</button></Link>
@@ -109,8 +121,8 @@ const Home = (props:any) => {
                         </div>
                         
                     </div>
-                    <div className="w-full h-full bg-bg-2 rounded-xl max-w-md flex items-center justify-start flex-col p-4 shadow-md shadow-gray-800">
-                        <p className="text-main text-2xl font-alkSanet w-full text-left"></p>
+                    <div className="w-full h-full bg-bg-2 rounded-xl max-w-md flex items-center justify-center flex-col p-4 shadow-md shadow-gray-800">
+                        <p className="text-secondary text-3xl font-alkSanet text-center w-full">Coming soon...</p>
                     </div>
                 </div>
             </div>

@@ -6,11 +6,16 @@ import { BiDesktop, BiMedal } from 'react-icons/bi';
 import { RiVirusLine } from 'react-icons/ri';
 import { SiHackthebox } from 'react-icons/si';
 
+import { BoxAnim } from '../specials/Animations';
+
+
+
 const  Body = (props:any) => {
+  
 
     return (
       <>
-        {/*<div className='absolute top-0 bottom-0 left-0 right-0 pointer-events-none bg-center  bg-cover blur-sm opacity-20  -z-10' style={{backgroundImage: `url("./banner.webp")`}}></div>*/}
+        {/* <div className='absolute top-0 bottom-0 left-0 right-0 pointer-events-none bg-center  bg-cover blur-sm opacity-20  -z-10' style={{backgroundImage: `url("./banner.webp")`}}></div> */}
         <div className="flex flex-col justify-center items-center w-screen text-main min-h-screen gap-4">
           <TypeAnimation
             sequence={[
@@ -44,27 +49,33 @@ const  Body = (props:any) => {
         </div>
 
         <div className="flex flex-col justify-center items-center w-screen text-main min-h-screen gap-2">
-          <p className="text-4xl text-center w-full px-6 font-bpgESM text-secondary">{props.app.langJson.words[props.app.lang].whatNautilusIncludes}</p>
+          <BoxAnim><p className="text-4xl text-center w-full px-6 font-bpgESM text-secondary">{props.app.langJson.words[props.app.lang].whatNautilusIncludes}</p></BoxAnim>
 
           <div className='flex flex-col  tablet:flex-row gap-6'>
             <div className='flex flex-col justify-center items-center gap-6'>
-              <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
-                <p className="text-2xl text-left font-bpgESM mb-4 flex flex-row"><GiWhiteBook className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].Includes1Name}</span></p>
-                <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Includes1Description}</p>
-              </div>
-              <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
-                <p className="text-2xl text-left font-bpgESM mb-4 flex flex-row"><BsAlarm className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].Includes3Name}</span></p>
-                <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Includes3Description}</p>
-              </div>
+              <BoxAnim>
+                <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
+                  <p className="text-2xl text-left font-bpgESM mb-4 flex flex-row"><GiWhiteBook className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].Includes1Name}</span></p>
+                  <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Includes1Description}</p>
+                </div>
+              </BoxAnim>
+              <BoxAnim>
+                <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
+                  <p className="text-2xl text-left font-bpgESM mb-4 flex flex-row"><BsAlarm className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].Includes3Name}</span></p>
+                  <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Includes3Description}</p>
+                </div>
+              </BoxAnim> 
             </div>
 
             <div className='flex flex-col justify-center items-center'>
-              <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
-                <p className="text-2xl text-left font-bpgESM mb-4 w-64 flex flex-row"><BiDesktop className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].Includes2Name}</span></p>
-                <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Includes2Description}</p>
-              </div>
+              <BoxAnim>
+                <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
+                  <p className="text-2xl text-left font-bpgESM mb-4 w-64 flex flex-row"><BiDesktop className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].Includes2Name}</span></p>
+                  <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Includes2Description}</p>
+                </div>
+              </BoxAnim>
               <br/>
-              <Link to="/courses"><button className="bg-main text-black py-3 px-6 rounded-md font-bold m-4 hover:bg-secondary duration-200">{props.app.langJson.words[props.app.lang].checkCourses}</button></Link>
+              <BoxAnim><Link to="/courses"><button className="bg-main text-black py-3 px-6 rounded-md font-bold m-4 hover:bg-secondary duration-200">{props.app.langJson.words[props.app.lang].checkCourses}</button></Link></BoxAnim>
             </div>
           </div>
 
@@ -73,24 +84,31 @@ const  Body = (props:any) => {
         <div className=' w-screen h-52'></div>
 
         <div className="flex flex-col justify-center items-center w-screen text-main min-h-screen gap-2">
-          <p className="text-4xl text-center w-full px-6 font-bpgESM text-secondary"><span className='w-full'>{props.app.langJson.words[props.app.lang].howCostumerCanGrow}</span></p>
+          <BoxAnim><p className="text-4xl text-center w-full px-6 font-bpgESM text-secondary"><span className='w-full'>{props.app.langJson.words[props.app.lang].howCostumerCanGrow}</span></p></BoxAnim>
 
           <div className='flex flex-col tablet:flex-row gap-6'>
            <div className='flex flex-col justify-center items-center'>
-              <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
-                <p className="text-2xl text-left font-bpgESM my-4 w-64 flex flex-row"><GiMeshNetwork className='mr-2  text-secondary text-5xl'/> <span className='w-full'>{props.app.langJson.words[props.app.lang].Costumer2Name}</span></p>
-                <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Costumer2Description}</p>
-              </div>
+                <BoxAnim>
+                  <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
+                    <p className="text-2xl text-left font-bpgESM my-4 w-64 flex flex-row"><GiMeshNetwork className='mr-2  text-secondary text-5xl'/> <span className='w-full'>{props.app.langJson.words[props.app.lang].Costumer2Name}</span></p>
+                    <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Costumer2Description}</p>
+                  </div>
+                </BoxAnim>
             </div>
             <div className='flex flex-col justify-center items-center gap-6'>
-              <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
-                <p className="text-2xl text-left font-bpgESM mb-4 w-64 flex flex-row"><BiMedal className='mr-2  text-secondary text-5xl'/> <span className='w-full'>{props.app.langJson.words[props.app.lang].Costumer1Name}</span></p>
-                <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Costumer1Description}</p>
-              </div>
-              <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
-                <p className="text-2xl text-left font-bpgESM w-64 flex flex-row"><RiVirusLine className='mr-2  text-secondary text-5xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].Costumer3Name}</span></p>
-                <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Costumer3Description}</p>
-              </div> 
+                <BoxAnim>
+                  <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
+                    <p className="text-2xl text-left font-bpgESM mb-4 w-64 flex flex-row"><BiMedal className='mr-2  text-secondary text-5xl'/> <span className='w-full'>{props.app.langJson.words[props.app.lang].Costumer1Name}</span></p>
+                    <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Costumer1Description}</p>
+                  </div>
+                </BoxAnim>
+
+                <BoxAnim>
+                  <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
+                    <p className="text-2xl text-left font-bpgESM w-64 flex flex-row"><RiVirusLine className='mr-2  text-secondary text-5xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].Costumer3Name}</span></p>
+                    <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].Costumer3Description}</p>
+                  </div> 
+                </BoxAnim>
             </div>
           </div>
         </div>
@@ -100,28 +118,34 @@ const  Body = (props:any) => {
         <div className=' w-screen h-64'></div>
 
         <div className="flex flex-col justify-center items-center w-screen text-main min-h-screen gap-2">
-          <p className="text-4xl text-center w-full px-6  font-bpgESM text-secondary">{props.app.langJson.words[props.app.lang].questions}</p>
+          <BoxAnim><p className="text-4xl text-center w-full px-6  font-bpgESM text-secondary">{props.app.langJson.words[props.app.lang].questions}</p></BoxAnim>
 
           <div className='flex flex-col tablet:flex-row gap-6'>
             <div className='flex flex-col justify-center items-center'>
-              <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
-                <p className="text-2xl text-left font-bpgESM w-64 flex flex-row"><SiHackthebox className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].questions2Name}</span></p>
-                <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].questions2Description}</p>
-              </div> 
-              <button className="bg-main hidden tablet:block text-xl text-black py-3 px-8 rounded-md font-bold m-6 hover:bg-secondary duration-200"><span className='w-full'>{props.app.langJson.words[props.app.lang].moreQuestions}</span></button>
+              <BoxAnim>
+                <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
+                  <p className="text-2xl text-left font-bpgESM w-64 flex flex-row"><SiHackthebox className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].questions2Name}</span></p>
+                  <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].questions2Description}</p>
+                </div> 
+              </BoxAnim>
+              {/* <BoxAnim><button className="bg-main hidden tablet:block text-xl text-black py-3 px-8 rounded-md font-bold m-6 hover:bg-secondary duration-200"><span className='w-full'>{props.app.langJson.words[props.app.lang].moreQuestions}</span></button></BoxAnim> */}
             </div>
             <div className='flex flex-col justify-center items-center gap-6'>
+              <BoxAnim>
+                <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
+                  <p className="text-2xl text-left font-bpgESM mb-4 w-64 flex flex-row"><SiHackthebox className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].questions1Name}</span></p>
+                  <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].questions1Description}</p>
+                </div>
+              </BoxAnim>
 
-              <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
-                <p className="text-2xl text-left font-bpgESM mb-4 w-64 flex flex-row"><SiHackthebox className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].questions1Name}</span></p>
-                <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].questions1Description}</p>
-              </div>
-
+              <BoxAnim>
               <div className="flex flex-col justify-center text-main p-4 w-full bg-bg-2 rounded-2xl gap-2 hover:scale-105 duration-200">
                   <p className="text-2xl text-left font-bpgESM mb-4 w-64 flex flex-row"><SiHackthebox className='mr-2  text-secondary text-4xl'/><span className='w-full'>{props.app.langJson.words[props.app.lang].questions3Name}</span></p>
                   <p className="text-xl text-left w-64">{props.app.langJson.words[props.app.lang].questions3Description}</p>
               </div>
-              <button className="bg-main block tablet:hidden text-xl text-black py-3 px-8 rounded-md font-bold m-6 hover:bg-secondary duration-200"><span className='w-full'>{props.app.langJson.words[props.app.lang].moreQuestions}</span></button>
+              </BoxAnim>
+
+              {/* <BoxAnim><button className="bg-main block tablet:hidden text-xl text-black py-3 px-8 rounded-md font-bold m-6 hover:bg-secondary duration-200"><span className='w-full'>{props.app.langJson.words[props.app.lang].moreQuestions}</span></button></BoxAnim> */}
               
               
             

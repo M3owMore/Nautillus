@@ -1,4 +1,4 @@
-{
+﻿{
     "languages": [
         "English",
         "Georgian"
@@ -15,7 +15,7 @@
 
             "whatNautilusIncludes": "What Nautillus includes:",
             "Includes1Name": "Theoritical knowledge",
-            "Includes1Description": "Here, customer can get free and paid courses which will help him/her to learn more about cybersecurity.",
+            "Includes1Description": "Here, customer can get courses which will help him/her to learn more about cybersecurity.",
             "Includes2Name": "Practical exercises",
             "Includes2Description": "Here, customer can practice varios types of scenarios and understand how real hackers perform attacks on victims.",
             "Includes3Name": "Challenges",
@@ -25,15 +25,15 @@
 
             "howCostumerCanGrow": "How custumer can grow:",
             "Costumer1Name": "Certificate",
-            "Costumer1Description": "After customer will pass exam, he/she will receive certificate.",
-            "Costumer2Name": "Chance to work with us",
-            "Costumer2Description": "After getting high scores on exams, customer will have opportunity to be a mentor or a pen-tester here at Nautillus.",
+            "Costumer1Description": "After customer will pass exam, he/she will receive a certificate.",
+            "Costumer2Name": "Create a clan",
+            "Costumer2Description": "Nautillus gives its customers the perfect opportunity to meet other hackers and create hacking groups.",
             "Costumer3Name": "Start Pen-testing or bug bounity",
             "Costumer3Description": "In case of getting high skills, customer will be able to start penetration testing or bug bounity on his/her own.",
 
             "questions": "Q&A",
             "questions1Name": "What is Nautillus?",
-            "questions1Description": "Nautillus is online hacking platform where anyone can learn and practice hacking.",
+            "questions1Description": "Nautillus is online platform where anyone can learn and practice hacking.",
             "questions2Name": "How can i learn hacking on Nautillus?",
             "questions2Description": "Nautillus has theoritical and practical exercises.First, customer will get theoritical knowledge and after that he/she will start practicing.",
             "questions3Name": "Can i see my progress?",
@@ -93,13 +93,13 @@
             "searchUsers": "Search Users",
             "search": "Search",
 
+            "changePFP": "Change Profile Picture",
+            "blogs": "Blogs",
 
-            "changePFP": "Change Profile Picture"
-
-
-
-
-
+            "founders": "Founders",
+            "aboutUsText1": "Nau team is a group of developers and cybersecurity experts who wanted to recreate cybersecurity industry.",
+            "aboutUsText2": "Our mission is to make cybersecurity and I.T. training available and easy for everyone. We created courses and products which will benefit everyone, starting from beginners, ending with industry experts.",
+            "aboutUsText3": "Our approach to cybersecurity training is very different from others. We belive that a person who wants to build his/her career in I.T. feild should understand every little detail. Without details, nobody can build strong foundation for their knowledge."
 
 
 
@@ -118,7 +118,7 @@
 
             "whatNautilusIncludes": "რას მოიცავს ნაუტილუსი:",
             "Includes1Name": "თეორიული ცოდნა",
-            "Includes1Description": "აქ მომხმარებელს შეუძლია მიიღოს უფასო და ფასიანი კურსები, რაც დაეხმარება მას მეტი გაიგოს კიბერუსაფრთხოების შესახებ.",
+            "Includes1Description": "აქ მომხმარებელს შეუძლია მიიღოს კურსები, რომლებიც დაეხმარება მას მეტი გაიგოს კიბერუსაფრთხოების შესახებ.",
             "Includes2Name": "პრაქტიკული სავარჯიშოები",
             "Includes2Description": "აქ მომხმარებელს შეუძლია ივარჯიშოს სხვადასხვა ტიპის სცენარი და გაიგოს, თუ როგორ ახორციელებენ რეალური ჰაკერები თავდასხმებს მსხვერპლზე.",
             "Includes3Name": "ჩელენჯები",
@@ -128,14 +128,14 @@
             "howCostumerCanGrow": "როგორ შუძლია მომხმარებელს განვითარდეს:",
             "Costumer1Name": "სერთიფიკატი",
             "Costumer1Description": "მას შემდეგ, რაც მომხმარებელი გამოცდას ჩააბარებს, ის მიიღებს სერთიფიკატს.",
-            "Costumer2Name": "შანსი რომ იმაშავოთ ჩვენთან ერთად",
-            "Costumer2Description": "გამოცდებზე მაღალი ქულების მიღების შემდეგ მომხმარებელს შესაძლებლობა ექნება იყოს მენტორი ან კალმის ტესტერი აქ Nautillus-ში.",
+            "Costumer2Name": "კლანის შექმნა",
+            "Costumer2Description": "Nautillus საკუთარ კლიენტებს იდეალურ შესაძლებლობას აძლევს, რომ შეხვდნენ სხვა ჰაკერებს და ჩამოაყალიბონ ჯგუფები.",
             "Costumer3Name": "დაიწყეთ Pen-testing ან bug bounity",
             "Costumer3Description": "მაღალი უნარების მიღების შემთხვევაში, მომხმარებელს შეეძლება დამოუკიდებლად დაიწყოს შეღწევადობის ტესტირება ან შეცდომების აღმოჩენა.",
 
             "questions": "კითხვები",
             "questions1Name": "რა არის ნაუტილუსი?",
-            "questions1Description": "nautilusi არის ონლაინ ჰაკერების პლატფორმა, სადაც ყველას შეუძლია ისწავლოს და ივარჯიშოს ჰაკერების შესახებ.",
+            "questions1Description": "Nautillus არის ონლაინ პლატფორმა, სადაც ყველას შეუძლია ისწავლოს და ივარჯიშოს ჰაკერების შესახებ.",
             "questions2Name": "როგორ შემიძლია ჰაკერობის სწავლე ნაუტილუსზე?",
             "questions2Description": "ნაუტილუსს აქვს თეორიული და პრაქტიკული სავარჯიშოები. ჯერ მომხმარებელი მიიღებს თეორიულ ცოდნას და ამის შემდეგ დაიწყებს პრაქტიკას.",
             "questions3Name": "შემიძლია ჩემი პროგრესის ნახვა?",
@@ -159,8 +159,8 @@
             "repeatPassword": "გაიმეორეთ პაროლი",
             "name": "სახელი",
             "forgotPassword": "დაგავიწყდა პაროლი?",
-            "haveAcc": "გაქ აქაუნთი?",
-            "dontHaveAcc": "არ გაქ აქაუნთი?",
+            "haveAcc": "გაქვს ექაუნთი?",
+            "dontHaveAcc": "არ გაქვს ექაუნთი?",
 
             "PTD": "ქულების გადატანა დოლარში: ",
             "userLevels": "მომხმარებლის დონეები: ",
@@ -193,7 +193,15 @@
             "searchUsers": "ხალხის ძიება",
             "search": "ძებნა",
 
-            "changePFP": "შეცვალე  ფოტო"
+            "changePFP": "შეცვალე  ფოტო",
+            "blogs": "ბლოგები",
+
+
+            "founders": "დამფუძვნებლები",
+            "aboutUsText1": "Nau გუნდი არის დეველოპერებისა და კიბერუსაფრთხოების ექსპერტების გუნდი, რომლებსაც კიბერუსაფრთხოების ინდუსტრიის გარდაქმნა სურთ.",
+            "aboutUsText2": "ჩვენი მისია არის, გავხადოთ კიბერუსაფრთხოების და I.T. ინდუსტრიის ტრენინგები ყველასთვის ხელმისაწვდომი და ადვილი. ჩვენ შევიმუშავეთ კურსები და პროდუქტები, რომლებიც ყველას დაეხმარება, დამწყებებსაც და ინდუსტრიის ექსპერტებსაც.",
+            "aboutUsText3": "ჩვენი მიდგომა კიბერუსაფრთხოების ტრენინგებთან განსხვავებულია. ჩვენ გვჯერა, რომ მას, ვისაც თავისი კარიერის I.T. სფეროში გაგრძელება სურს, ყველა დეტალი უნდა ესმოდეს. დეტალების გარეშე ვერავინ შეძლებს ცოდნისთვის ძლიერი საფუძველის აშენებას."
+
 
         }
     ]

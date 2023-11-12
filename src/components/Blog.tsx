@@ -36,8 +36,8 @@ const Blog = (props:any) => {
                 </div>
             : 
             blog !== null ? 
-                <div className="w-full max-w-2xl flex flex-col">
-                    <h1 className="text-2xl text-secondary font-alkSanet">{blog.title}</h1>
+                <div className="w-full max-w-2xl flex flex-col justify-center">
+                    <h1 className="text-2xl text-secondary font-alkSanet text-center">{blog.title}</h1>
                     <br/>
                     {parse(blog.content)}
                 </div>

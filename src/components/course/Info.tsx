@@ -19,13 +19,13 @@ const Info = (props:any) => {
                     </button>
                 </div>
                 
-                {/* {parse(props.courseText)} */}
-                { <Test/> }
+                {parse(props.courseText)}
+                {/* <Test/>  */}
 
                 <button onClick={props.handleNextPage} className='text-black my-16  p-1.5 text-xl rounded-md bg-secondary hover:bg-opacity-50 duration-200'><BsArrowRight/></button>
                 <button className='p-1.5 opacity-0'></button>
             </div>
-            {(props.isCourse && props.width > 800) ? <div className="w-44 h-full"></div> : null}
+            {(props.isCourse && props.width > 800 && !props.isEditor) ? <div className="w-44 h-full"></div> : null}
         </div>
     );
   }

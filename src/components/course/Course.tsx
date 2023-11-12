@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import axios from 'axios';
 import { PuffLoader  } from "react-spinners";
 import useWindowDimensions from "../../js/useWindowDimensions";
+// import Console from "./Console";
 
 const Course = (props:any) => {
     const {width} = useWindowDimensions()
@@ -103,15 +104,16 @@ const Course = (props:any) => {
                 
                 :
                     <div className="absolute -z-10 top-20 left-0 right-0 bottom-0 flex flex-row items-center justify-center">
-                        {course.results[0].code !== "" ? null :
+                        {course.results[0].code == "" ? null :
                         <div className="flex absolute z-10 bottom-5 left-5 tablet:right-5 tablet:left-auto">
                             <ReactSwitch height={20} width={40} uncheckedIcon={false} checkedIcon={false}  onChange={() => {setIsCourse(!isCourse)}} checked={!isCourse}/>
                         </div>}
                         
 
                         <CourseNav page={page} name={name} setPage={setPage} app={props.app} isNav={isNav} width={width}/>
-                        <Info bool={width > 800 || isCourse} isCourse={isCourse} width={width}  name={name} handlePreviousPage={handlePreviousPage} handleNextPage={handleNextPage} courseText={returnLang(props.app.lang)} app={props.app} isNav={isNav} setIsNav={setIsNav}/>
-                        <Editor bool={!isCourse && course.results[0].code !== ""} name={name} isCourse={isCourse} width={width} code={course.results[0].code} app={props.app}/>
+                        <Info bool={width > 800 || isCourse} isCourse={isCourse} isEditor={course.results[0].code !== ""} width={width}  name={name} handlePreviousPage={handlePreviousPage} handleNextPage={handleNextPage} courseText={returnLang(props.app.lang)} app={props.app} isNav={isNav} setIsNav={setIsNav}/>
+                        <Editor bool={!isCourse && course.results[0].code !== ""} name={name} isCourse={isCourse} code={course.results[0].code} app={props.app}/>
+                        {/* <Console  name={name} app={props.app}/> */}
                         
                     </div>
                 }          
