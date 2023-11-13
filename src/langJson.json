@@ -99,7 +99,9 @@
             "founders": "Founders",
             "aboutUsText1": "Nau team is a group of developers and cybersecurity experts who wanted to recreate cybersecurity industry.",
             "aboutUsText2": "Our mission is to make cybersecurity and I.T. training available and easy for everyone. We created courses and products which will benefit everyone, starting from beginners, ending with industry experts.",
-            "aboutUsText3": "Our approach to cybersecurity training is very different from others. We belive that a person who wants to build his/her career in I.T. feild should understand every little detail. Without details, nobody can build strong foundation for their knowledge."
+            "aboutUsText3": "Our approach to cybersecurity training is very different from others. We belive that a person who wants to build his/her career in I.T. feild should understand every little detail. Without details, nobody can build strong foundation for their knowledge.",
+
+            "whatsInLesson": "What's in this Lesson?"
 
 
 
@@ -200,7 +202,9 @@
             "founders": "დამფუძვნებლები",
             "aboutUsText1": "Nau გუნდი არის დეველოპერებისა და კიბერუსაფრთხოების ექსპერტების გუნდი, რომლებსაც კიბერუსაფრთხოების ინდუსტრიის გარდაქმნა სურთ.",
             "aboutUsText2": "ჩვენი მისია არის, გავხადოთ კიბერუსაფრთხოების და I.T. ინდუსტრიის ტრენინგები ყველასთვის ხელმისაწვდომი და ადვილი. ჩვენ შევიმუშავეთ კურსები და პროდუქტები, რომლებიც ყველას დაეხმარება, დამწყებებსაც და ინდუსტრიის ექსპერტებსაც.",
-            "aboutUsText3": "ჩვენი მიდგომა კიბერუსაფრთხოების ტრენინგებთან განსხვავებულია. ჩვენ გვჯერა, რომ მას, ვისაც თავისი კარიერის I.T. სფეროში გაგრძელება სურს, ყველა დეტალი უნდა ესმოდეს. დეტალების გარეშე ვერავინ შეძლებს ცოდნისთვის ძლიერი საფუძველის აშენებას."
+            "aboutUsText3": "ჩვენი მიდგომა კიბერუსაფრთხოების ტრენინგებთან განსხვავებულია. ჩვენ გვჯერა, რომ მას, ვისაც თავისი კარიერის I.T. სფეროში გაგრძელება სურს, ყველა დეტალი უნდა ესმოდეს. დეტალების გარეშე ვერავინ შეძლებს ცოდნისთვის ძლიერი საფუძველის აშენებას.",
+
+            "whatsInLesson": "რა შედის ამ კურსში?"
 
 
         }

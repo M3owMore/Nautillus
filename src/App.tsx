@@ -86,7 +86,7 @@ const  App = () => {
             name: res.data.user_name,
             img: `/userImages/${res.data.profile_picture}.webp`,
             plan: "Free",
-            XP: 800,
+            XP: 0,
             level: "Beginner",
           })
         })

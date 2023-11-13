@@ -13,7 +13,7 @@ const Box = (props:any) => {
     return (
         <button onClick={() => {window.location.href = `/courses/course/${props.course.title}`}} className="relative  hover:scale-105 hover:bg-bg-4 duration-200 flex flex-col h-40 p-2 items-center justify-center bg-bg-3 rounded-xl">
             <p className='text-main w-24 h-auto text-center text-md mx-4 font-bold font-bpgESM'>{props.course.title}</p>
-            <p className='text-main w-24 h-auto text-center text-xs mx-4 font-arialGeo'>{props.app.langJson.words[props.app.lang].level}: {props.course.level}</p>
+            <p className='text-main w-24 h-auto text-center text-xs mx-4 font-arialGeo'>{props.app.langJson.words[props.app.lang].level}: {props.app.lang == 0 ? props.course.level : props.course.level_geo}</p>
             <div className="absolute -z-0 top-0 bottom-0 left-0 right-0 bg-cover bg-center blur-sm opacity-30" style={{backgroundImage: `url(/courses/${props.course.title}.webp)`}}></div>
         </button>
     )

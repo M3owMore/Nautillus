@@ -16,7 +16,7 @@ const BoxAnim = (props:any) => {
     }, [control, inView]);
   
     const boxVariant:any  = {
-      visible: { opacity: 1, scale: 1, transition: { duration: 0.4 }},
+      visible: { opacity: 1, scale: 1, transition: { duration: 0.6}},
       hidden: { opacity: 0, scale: 0 },
     }
     return(

@@ -62,7 +62,7 @@ const SearchUsers = (props:any) => {
                     </div>
 
                     <div className="w-full max-w-xl flex flex-col justify-start items-center p-4 gap-4">
-                        {users !== null ? users.map((user:any, i:number) => <User  i={i}  pfp={user.profile_picture} name={user.user_name} key={i}/>) : null}
+                        {users !== null && users.length > 0 ? users.map((user:any, i:number) => <User  i={i}  pfp={user.profile_picture} name={user.user_name} key={i}/>) : null}
 
                     </div>
                 </div>

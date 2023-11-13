@@ -41,13 +41,13 @@ const CourseInfo = (props:any) => {
               <div className="absolute -z-10 top-0 bottom-0 left-0 right-0 bg-cover bg-center blur-sm opacity-20" style={{backgroundImage: `url(/courses/${course.data.title}.webp)`}}></div>
               
               <h1 className="text-secondary font-alkSanet font-bold text-5xl text-center">{course.data.title}</h1>
-              <p className="text-main  text-lg text-left">What's in this Lesson?</p>
+              <p className="text-main  text-lg text-left">{props.app.langJson.words[props.app.lang].whatsInLesson}</p>
               {/* <ul className="text-zinc-200 list-disc ml-4 m-1">
                   {course.data.topics.split("$").map((object:any, i:any) => (<li key={i} className="text-xs text-left ml-4 m-2">{object}</li>))}
               </ul> */}
               <br/>
-              {course.data.big_description.split("\n").map((text:string, i:number) => <p key={i} className="text-main font-thin text-xs text-left m-1">{"ㅤ"}{text}</p>)}
-              <p className="text-white text-lg text-center ">Level: <span className="text-secondary">{course.data.level}</span></p>
+              {(props.app.lang == 0 ? course.data.big_description : course.data.big_description_geo).split("\n").map((text:string, i:number) => <p key={i} className="text-main font-thin text-xs text-left m-1">{"ㅤ"}{text}</p>)}
+              <p className="text-white text-lg text-center ">{props.app.langJson.words[props.app.lang].level}: <span className="text-secondary">{props.app.lang == 0 ? course.data.level : course.data.level_geo}</span></p>
               
               <p className="text-zinc-400 text-sm text-center  mt-6"><span className="text-main font-bold text-3xl">{course.data.price}$</span></p>
               <div className="p-6 flex items-center w-full justify-center">

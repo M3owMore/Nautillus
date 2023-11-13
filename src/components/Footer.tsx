@@ -17,7 +17,7 @@ const  Footer = () => {
                         <p className="text-2xl  m-2">Nautillus</p>
                      </div>
                 </Link>
-                <p>© 2022 Nautillus</p>
+                <p>© 2023 Nautillus</p>
             </div>
             <div className="flex justify-center items-center flex-row p-4">
                 <button className="text-main hover:text-secondary text-3xl hover:scale-125 duration-200"><BsFacebook className="m-2"/></button>
