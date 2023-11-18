@@ -293,11 +293,14 @@ class SearchUser(views.APIView):
 
     def post(self, request):
         try:
-            user = User.objects.filter(user_name__icontains=request.data['user_name'])
+            if len(request.data["user_name"]) > 2:
+                user = User.objects.filter(user_name__icontains=request.data['user_name'])
 
-            serializer = UserFriendsSerializer(user, many=True)
+                serializer = UserFriendsSerializer(user, many=True)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response({"details": "No user"}, status=status.HTTP_200_OK)
         
         except Exception as error:
             return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)

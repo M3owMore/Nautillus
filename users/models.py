@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from courses.models import Course
+from django.core.validators import MinLengthValidator
 
 class CustomAccountManager(BaseUserManager):
 
@@ -35,7 +36,7 @@ class CustomAccountManager(BaseUserManager):
 # kursebia dasamatebeli sadac iqneba open time romelic shinaxavs bolo gaxsnis dros da imis mixedvit dasortavs
 class NewUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
-    user_name = models.CharField(max_length=150, unique=True)
+    user_name = models.CharField(max_length=20, unique=True, validators=[MinLengthValidator(3)])
     start_date = models.DateTimeField(default=timezone.now)
     about = models.TextField(_(
         'about'), max_length=500, blank=True)

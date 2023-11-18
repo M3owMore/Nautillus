@@ -224,21 +224,24 @@ class ExecuteCodeAPIView(views.APIView):
             if  language == 'Python':
                 container = client.containers.run(
                 'python:latest',
-                command=['python', '-c', user_code],
-                remove=True
+                command=['timeout', '10s', 'python', '-c', user_code],
+                remove=True,
+                mem_limit='6m',
+                cpu_period=10000,
+                cpu_quota=5000
             )
 
             if language == 'C++':
                 container = client.containers.run(
                 'gcc:latest',
-                command=['sh', '-c', f'echo \'{user_code}\' > main.cpp && g++ -o main main.cpp && ./main'],
+                command=['timeout', '10s', 'sh', '-c', f'echo \'{user_code}\' > main.cpp && g++ -o main main.cpp && ./main'],
                 remove=True
             )
 
             if language == 'Ruby':
                 container = client.containers.run(
                 'ruby:latest',
-                command=['ruby', '-e', user_code],
+                command=['timeout', '10s', 'ruby', '-e', user_code],
                 remove=True
             )
                 
@@ -251,7 +254,7 @@ class ExecuteCodeAPIView(views.APIView):
 
             output = container.decode('utf-8')
             
-            if output == None:
+            if output == '':
                 return Response({'error': 'process time outed'}, status=status.HTTP_400_BAD_REQUEST) 
             
             return Response({'output': output}, status=status.HTTP_200_OK) 

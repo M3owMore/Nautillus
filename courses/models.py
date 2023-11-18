@@ -5,9 +5,11 @@ from django.contrib.auth import get_user_model
 class Course(models.Model):
     title = models.TextField(max_length=1000)
     level = models.TextField(max_length=500, blank=True)
+    level_geo = models.TextField(max_length=500, blank=True)
     description = models.TextField(max_length=5000000)
+    description_geo = models.TextField(max_length=5000000, blank=True)
     big_description = models.TextField(blank=True) 
-    topics = models.TextField(max_length=5000000, blank=True)
+    big_description_geo = models.TextField(blank=True) 
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False)
     date_created = models.DateTimeField(default=timezone.now)
 
