@@ -1,6 +1,6 @@
 from django.contrib import admin
 from users.models import NewUser
-from users.models import UserCourse, Notification, UserCoursePage
+from users.models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode
 from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea, CharField
 from django import forms
@@ -18,7 +18,7 @@ class UserAdminConfig(UserAdmin):
                     'is_active', 'is_staff')
     fieldsets = (
         (None, {'fields': ('email', 'user_name', 'profile_picture')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active', "groups")}),
         ('Personal', {'fields': ('about', 'friends', 'start_date')}),
     )
     formfield_overrides = {
@@ -44,8 +44,18 @@ class UserCoursePageAdminConfig(ModelAdmin):
     model = UserCoursePage
     list_display = ('user', 'course', 'page')
 
+class PromoCodeAdminConfig(ModelAdmin):
+    model = PromoCode
+    list_display = ('promo_code', 'id')
+
+class UserPromoCodeAdminConfig(ModelAdmin):
+    model = UserPromoCode
+    list_display = ('promo_code', 'user', 'id')
+
 
 admin.site.register(NewUser, UserAdminConfig)
 admin.site.register(UserCourse, UserCourseAdminConfig)
 admin.site.register(Notification, NotificationAdminConfig)
 admin.site.register(UserCoursePage, UserCoursePageAdminConfig)
+admin.site.register(PromoCode, PromoCodeAdminConfig)
+admin.site.register(UserPromoCode, UserPromoCodeAdminConfig)

@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-)_c+y8vlu&u25x2g*_t%h9k(ybzckk(rn7o4d4^fey0b9#7yjo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "users",
     "rest_framework_simplejwt.token_blacklist",
-    'blog'
+    'blog',
 ]
 
 MIDDLEWARE = [
@@ -139,8 +139,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = 'static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

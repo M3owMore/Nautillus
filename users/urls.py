@@ -11,6 +11,8 @@ from .views import (BlacklistTokenUpdateView,
                     PayPalExecuteAPIView,
                     ReturnNotifications,
                     ReturnLastUserCoursePage,
+                    CheckUserPromoCode,
+                    GetUserIPLocation
                 )
 
 app_name = 'users'
@@ -31,5 +33,7 @@ urlpatterns = [
     path('paypal/execute/', PayPalExecuteAPIView.as_view(), name='execute-payment'),
     path('notifications/', ReturnNotifications.as_view(), name='notifications'),
     path('courses/last/page/<str:title>', ReturnLastUserCoursePage.as_view(), name='last-user-opened-page'),
+    path('promo_code/', CheckUserPromoCode.as_view(), name='create-promo-code'),
+    path('user_ip/', GetUserIPLocation.as_view(), name='user-ip-location'),
     # path('courses/lesson/image', ReturnLessonImage.as_view(), name='return-lesson-image'),
 ]

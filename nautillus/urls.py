@@ -20,8 +20,13 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from .settings import STATIC_ROOT, STATIC_URL
+from django.conf.urls.static import static
+from django.urls import re_path as url
+from django.views.static import serve
 
 urlpatterns = [
+    url(r'^static/(?P<path>.*)$', serve,{'document_root': STATIC_ROOT}),
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='index.html')),
     path('api/', include('courses.urls', namespace='courses_api')),

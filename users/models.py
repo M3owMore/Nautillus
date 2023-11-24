@@ -70,3 +70,19 @@ class UserCoursePage(models.Model):
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     page = models.IntegerField(null=True, default=1)
+
+
+class PromoCode(models.Model):
+    promo_code = models.TextField(max_length=5000000)
+    sale = models.IntegerField(blank=True, null=True)
+    people = models.IntegerField(blank=True, null=True)
+    date_created = models.DateTimeField(default=timezone.now)
+
+
+class UserPromoCode(models.Model):
+    promo_code = models.ForeignKey(PromoCode, on_delete=models.CASCADE)
+    user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.promo_code.promo_code

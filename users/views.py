@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from courses.models import CourseGroup
-from .models import UserCourse, Notification, UserCoursePage
+from .models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode
 from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer, NotificationSerializer
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.exceptions import NotFound, APIException
@@ -20,6 +20,7 @@ from cryptography.fernet import Fernet
 from nautillus.settings import FERNET_KEY
 from datetime import timedelta
 from django.http import HttpResponse
+import requests
 
 User = get_user_model()
 
@@ -95,7 +96,7 @@ class CustomTokenCreateView(TokenObtainPairView):
                     return Response({'tokens': super().post(request, *args, **kwargs).data, 'response': response})
             
             else:
-                return Response({'error': 'Email or Password is worng'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Email or Password is wrong'}, status=status.HTTP_400_BAD_REQUEST)
             
         except Exception as error:
 
@@ -280,23 +281,34 @@ class PayPalPaymentAPIView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        promo_code = request.data['promo_code']
         course = Course.objects.filter(title=request.data['title'])[0]
         user = User.objects.filter(user_name=request.user.user_name)[0]
+        course_price = course.price
 
         if UserCourse.objects.filter(user=user, course=course):
             return Response({'error': 'this course is already purchased'}, status=status.HTTP_400_BAD_REQUEST)
         
         else:
+            if PromoCode.objects.filter(promo_code=promo_code.lower()):
+                promo_code_object = PromoCode.objects.filter(promo_code=promo_code.lower())[0]
+                
+                if UserPromoCode.objects.filter(user=user, promo_code=promo_code_object) or UserPromoCode.objects.filter(promo_code=promo_code_object).count() >= promo_code_object.people:
+                    print("promo code is unavelable")
+                else:
+                    UserPromoCode.objects.create(user=user, promo_code=promo_code_object)
+                    course_price = round(float(course.price) - float(course.price) * promo_code_object.sale / 100, 2)
+
             paypalrestsdk.configure({
-                "mode": "sandbox", # sandbox or live
-                "client_id": "AWKbqXDKcVY3rG5A2tSFC9RH6ahhVAWHd69vBcQxSTcvFyT2f69dP46D_8TzYkKal5MlCHyUmLxQ8vmY",
-                "client_secret": "EA1tf4Uk8iEWt24i2cIOYnNa4gl82SVuxQ6g0hXSEOK1BVTzGP-SSloegncN78yDamthz2QqSjvHjV6V" 
+                "mode": "live", # sandbox or live
+                "client_id": "ARx4gN3fHvLP0Tzme9Djm-W_0wjrPkyAyEuIETowB6DeyfA2x_bouwt75DJqn6TTSYe1CQwN-4K7xv0x",
+                "client_secret": "ENnEy5gTzIO31r3Q6PAWkaivdpLE2AXTXrNF0wUekW1ieipcodHxxcx47H69r_v34tg7BUKvb16HZvcl" 
                 })
             
             key = FERNET_KEY
             fernet = Fernet(key)
             encrypted_course_id = fernet.encrypt(str(course.id).encode()).decode()
-
+            print(course_price)
             paypal_payment = Payment({
                 "intent": "sale",
                 "payer": {
@@ -309,7 +321,7 @@ class PayPalPaymentAPIView(views.APIView):
                 "transactions": [
                     {
                         "amount": {
-                            "total": f"{course.price}",  # Replace with your payment amount
+                            "total": f"{course_price}",  # Replace with your payment amount
                             "currency": "USD"  # Replace with your currency code
                         },
                         "description": "Example payment description"
@@ -331,9 +343,9 @@ class PayPalExecuteAPIView(PayPalPaymentAPIView):
 
     def post(self, request):
         paypalrestsdk.configure({
-            "mode": "sandbox", # sandbox or live
-            "client_id": "AWKbqXDKcVY3rG5A2tSFC9RH6ahhVAWHd69vBcQxSTcvFyT2f69dP46D_8TzYkKal5MlCHyUmLxQ8vmY",
-            "client_secret": "EA1tf4Uk8iEWt24i2cIOYnNa4gl82SVuxQ6g0hXSEOK1BVTzGP-SSloegncN78yDamthz2QqSjvHjV6V" 
+            "mode": "live", # sandbox or live
+            "client_id": "ARx4gN3fHvLP0Tzme9Djm-W_0wjrPkyAyEuIETowB6DeyfA2x_bouwt75DJqn6TTSYe1CQwN-4K7xv0x",
+            "client_secret": "ENnEy5gTzIO31r3Q6PAWkaivdpLE2AXTXrNF0wUekW1ieipcodHxxcx47H69r_v34tg7BUKvb16HZvcl" 
             })
         
         payment_id = request.data['payment_id']
@@ -363,9 +375,39 @@ class ReturnNotifications(views.APIView):
         last_7_days_notifications = Notification.objects.filter(date_created__gte=date)
         serializer = NotificationSerializer(last_7_days_notifications, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class CheckUserPromoCode(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        promo_code = request.data['promo_code']
+
+        try:
+            promo_code_object = PromoCode.objects.filter(promo_code=promo_code)[0]
+            user = User.objects.filter(user_name=request.user.user_name)[0]
+
+            if UserPromoCode.objects.filter(user=user, promo_code=promo_code_object) or UserPromoCode.objects.filter(promo_code=promo_code_object).count() >= promo_code_object.people:
+                return Response({"output": False}, status=status.HTTP_200_OK)
+            else:
+                course = Course.objects.filter(title=request.data['course_title'])[0]
+                saled_price = float(course.price) - float(course.price) * promo_code_object.sale / 100
+                return Response({"output": round(saled_price, 2)}, status=status.HTTP_200_OK)
+
+        except:
+            return Response({'output': False}, status=status.HTTP_200_OK)
 
 
+class GetUserIPLocation(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        ip = request.META.get('REMOTE_ADDR')
+        url = f"https://api.iplocation.net/?ip={ip}"
+        request_data = requests.get(url=url)
+        return Response({'county_name': request_data.json()["country_name"]}, status=status.HTTP_200_OK)
+
+
+# promo codeze userebis raodenobaa dasamatebeli
 
 # jwt/refresh is dros bazashi useri ar chans
-
-
