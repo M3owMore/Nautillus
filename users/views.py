@@ -396,18 +396,39 @@ class CheckUserPromoCode(views.APIView):
 
         except:
             return Response({'output': False}, status=status.HTTP_200_OK)
+        
 
 
-class GetUserIPLocation(views.APIView):
+class DeleteUnactiveUsers(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        ip = request.META.get('REMOTE_ADDR')
-        url = f"https://api.iplocation.net/?ip={ip}"
-        request_data = requests.get(url=url)
-        return Response({'county_name': request_data.json()["country_name"]}, status=status.HTTP_200_OK)
+        try:
+            deleted = False
+            today = timezone.now()
+            seven_day_before = today - timedelta(days=7)
+            last_7_days_unactive_users = User.objects.filter(start_date__lte=seven_day_before)
+            print(last_7_days_unactive_users)
+            for user in last_7_days_unactive_users:
+                if user.is_active == False:
+                    deleted = True
+                    user.delete()
+            if deleted:
+                return Response({'error': f'unactive users deleted successfully'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': f'no unactive users'}, status=status.HTTP_200_OK)
+
+        except Exception as error:
+            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# promo codeze userebis raodenobaa dasamatebeli
+# class GetUserIPLocation(views.APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get(self, request):
+#         ip = request.META.get('REMOTE_ADDR')
+#         url = f"https://api.iplocation.net/?ip={ip}"
+#         request_data = requests.get(url=url)
+#         return Response({'county_name': request_data.json()["country_name"]}, status=status.HTTP_200_OK)
 
 # jwt/refresh is dros bazashi useri ar chans
