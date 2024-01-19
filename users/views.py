@@ -294,20 +294,26 @@ class PayPalPaymentAPIView(views.APIView):
                 promo_code_object = PromoCode.objects.filter(promo_code=promo_code.lower())[0]
                 
                 if UserPromoCode.objects.filter(user=user, promo_code=promo_code_object) or UserPromoCode.objects.filter(promo_code=promo_code_object).count() >= promo_code_object.people:
-                    print("promo code is unavelable")
+                    print("promo code is unavailable")
                 else:
-                    UserPromoCode.objects.create(user=user, promo_code=promo_code_object)
+                    print("promo code is available")
                     course_price = round(float(course.price) - float(course.price) * promo_code_object.sale / 100, 2)
 
+            # paypalrestsdk.configure({
+            #     "mode": "sandbox", # sandbox or live
+            #     "client_id": "AWKbqXDKcVY3rG5A2tSFC9RH6ahhVAWHd69vBcQxSTcvFyT2f69dP46D_8TzYkKal5MlCHyUmLxQ8vmY",
+            #     "client_secret": "EA1tf4Uk8iEWt24i2cIOYnNa4gl82SVuxQ6g0hXSEOK1BVTzGP-SSloegncN78yDamthz2QqSjvHjV6V" 
+            #     })
             paypalrestsdk.configure({
                 "mode": "live", # sandbox or live
                 "client_id": "ARx4gN3fHvLP0Tzme9Djm-W_0wjrPkyAyEuIETowB6DeyfA2x_bouwt75DJqn6TTSYe1CQwN-4K7xv0x",
                 "client_secret": "ENnEy5gTzIO31r3Q6PAWkaivdpLE2AXTXrNF0wUekW1ieipcodHxxcx47H69r_v34tg7BUKvb16HZvcl" 
-                })
+            })
             
             key = FERNET_KEY
             fernet = Fernet(key)
             encrypted_course_id = fernet.encrypt(str(course.id).encode()).decode()
+            encrypted_promocode = fernet.encrypt(str(promo_code).encode()).decode()
             print(course_price)
             paypal_payment = Payment({
                 "intent": "sale",
@@ -315,7 +321,7 @@ class PayPalPaymentAPIView(views.APIView):
                     "payment_method": "paypal"
                 },
                 "redirect_urls": {
-                    "return_url": f"http://localhost:5173/payment/execute/{encrypted_course_id}",
+                    "return_url": f"http://localhost:5173/payment/execute/{encrypted_course_id}/{encrypted_promocode}",
                     "cancel_url": "yourdomain.com/payment/cancel/"
                 },
                 "transactions": [
@@ -342,6 +348,11 @@ class PayPalExecuteAPIView(PayPalPaymentAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        # paypalrestsdk.configure({
+        #     "mode": "sandbox", # sandbox or live
+        #     "client_id": "AWKbqXDKcVY3rG5A2tSFC9RH6ahhVAWHd69vBcQxSTcvFyT2f69dP46D_8TzYkKal5MlCHyUmLxQ8vmY",
+        #     "client_secret": "EA1tf4Uk8iEWt24i2cIOYnNa4gl82SVuxQ6g0hXSEOK1BVTzGP-SSloegncN78yDamthz2QqSjvHjV6V" 
+        #     })
         paypalrestsdk.configure({
             "mode": "live", # sandbox or live
             "client_id": "ARx4gN3fHvLP0Tzme9Djm-W_0wjrPkyAyEuIETowB6DeyfA2x_bouwt75DJqn6TTSYe1CQwN-4K7xv0x",
@@ -351,15 +362,30 @@ class PayPalExecuteAPIView(PayPalPaymentAPIView):
         payment_id = request.data['payment_id']
         payer_id = request.data['payer_id']
 
-        encrypted_course_id = request.data["course_id"]
         key = FERNET_KEY
         fernet = Fernet(key)
+
+        encrypted_promo_code = request.data['promo_code']
+
+        decrypted_promo_code = fernet.decrypt(encrypted_promo_code).decode()
+
+        encrypted_course_id = request.data["course_id"]
         decrypted_course_id = int(fernet.decrypt(encrypted_course_id).decode())
         course = Course.objects.filter(id=decrypted_course_id)[0]
 
         payment = Payment.find(payment_id)
         if payment.execute({"payer_id": payer_id}):
             user = User.objects.filter(user_name=request.user.user_name)[0]
+            
+            if PromoCode.objects.filter(promo_code=decrypted_promo_code.lower()):
+                promo_code_object = PromoCode.objects.filter(promo_code=decrypted_promo_code.lower())[0]
+                
+                if UserPromoCode.objects.filter(user=user, promo_code=promo_code_object) or UserPromoCode.objects.filter(promo_code=promo_code_object).count() >= promo_code_object.people:
+                    print("promo code is unavailable in exec")
+                else:
+                    print("promo code is available in exec")
+                    UserPromoCode.objects.create(user=user, promo_code=promo_code_object)
+
             UserCourse.objects.create(user=user, course=course)
             
             return Response({'success': 'Payment executed successfully'})
