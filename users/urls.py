@@ -13,13 +13,15 @@ from .views import (BlacklistTokenUpdateView,
                     ReturnLastUserCoursePage,
                     CheckUserPromoCode,
                     DeleteUnactiveUsers,
-                    # GetUserIPLocation
+                    CustomUserCreateView,
+                    GetUserIPLocation
                 )
 
 app_name = 'users'
 
 urlpatterns = [
     path('auth/login/', CustomTokenCreateView.as_view(), name='custom-token-create'),
+    path('auth/users/', CustomUserCreateView.as_view({'post': 'create'}), name='custom-user-create'),
     # path('register/', CustomUserCreate.as_view(), name="create_user"),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
@@ -36,6 +38,6 @@ urlpatterns = [
     path('courses/last/page/<str:title>', ReturnLastUserCoursePage.as_view(), name='last-user-opened-page'),
     path('promo_code/', CheckUserPromoCode.as_view(), name='create-promo-code'),
     path('delete-unactive-users/', DeleteUnactiveUsers.as_view(), name='delete-unactive-users'),
-    # path('user_ip/', GetUserIPLocation.as_view(), name='user-ip-location'),
+    path('user_ip/', GetUserIPLocation.as_view(), name='user-ip-location'),
     # path('courses/lesson/image', ReturnLessonImage.as_view(), name='return-lesson-image'),
 ]

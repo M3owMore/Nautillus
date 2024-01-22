@@ -213,7 +213,9 @@ DJOSER = {
     'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm?uid={uid}&token={token}',
     'EMAIL': {
         'activation': 'users.views.ActivationEmail',
-        'password_reset': 'users.views.ResetPasswordEmail',
+        'confirmation': 'users.views.ActivationEmailConfirmation',
+        'password_changed_confirmation': 'users.views.ResetPasswordEmail',
+        'username_changed_confirmation': 'users.views.ChangeEmailConfirmation',
     },
     'ACTIVATION_URL': 'http://localhost:5173/user/activation?uid={uid}&token={token}',
     'SEND_ACTIVATION_EMAIL': True,
@@ -235,8 +237,8 @@ DJOSER = {
         'user_delete': ['djoser.permissions.CurrentUserOrAdmin'], 
         'user': ['djoser.permissions.CurrentUserOrAdmin'],
         'user_list': ['djoser.permissions.CurrentUserOrAdmin'],
-        'token_create': ['rest_framework.permissions.AllowAny'],
-        'token_destroy': ['rest_framework.permissions.IsAuthenticated'],
+        'token_create': ['rest_framework.permissions.IsAdminUser'], # disabled
+        'token_destroy': ['rest_framework.permissions.IsAdminUser'], # disabled
     },
 }
 
@@ -245,9 +247,10 @@ AUTH_USER_MODEL = 'users.NewUser'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'nautillusimo@gmail.com'
-EMAIL_HOST_PASSWORD = 'piie qmxj pznl rywt'
+EMAIL_HOST_USER = 'nautillusgroup@gmail.com'
+EMAIL_HOST_PASSWORD = 'mteq ubja exti ybxy'
 EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'Nautillus <nautillusgroup@gmail.com>'
 
 
 FERNET_KEY = Fernet.generate_key()

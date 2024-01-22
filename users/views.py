@@ -19,13 +19,20 @@ from courses.models import Course
 from cryptography.fernet import Fernet
 from nautillus.settings import FERNET_KEY
 from datetime import timedelta
-from django.http import HttpResponse
+from djoser.views import UserViewSet
 import requests
+
 
 User = get_user_model()
 
 class ActivationEmail(email.ActivationEmail):
     template_name = 'activateEmail.html'
+
+class ActivationEmailConfirmation(email.ConfirmationEmail):
+    template_name = 'activateEmailConfirmation.html'
+
+class ChangeEmailConfirmation(email.ConfirmationEmail):
+    template_name = 'emailChanged.html'
 
 class ResetPasswordEmail(email.PasswordResetEmail):
     template_name = 'resetPass.html'
@@ -60,6 +67,21 @@ class RemoveExpiredTokens(generics.DestroyAPIView):
 
             return Response({'error': f'{error}'})
         
+
+class CustomUserCreateView(UserViewSet):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Add your custom validation logic here
+        if not serializer.validated_data['user_name'].isalnum():
+            return Response({"user_name": "Username must contain only letters and numbers."}, status=status.HTTP_400_BAD_REQUEST)
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        
+
 class CustomTokenCreateView(TokenObtainPairView):
     permission_classes = [permissions.AllowAny]
         
@@ -448,13 +470,13 @@ class DeleteUnactiveUsers(views.APIView):
             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class GetUserIPLocation(views.APIView):
-#     permission_classes = [permissions.IsAuthenticated]
+class GetUserIPLocation(views.APIView):
+    permission_classes = [permissions.AllowAny]
 
-#     def get(self, request):
-#         ip = request.META.get('REMOTE_ADDR')
-#         url = f"https://api.iplocation.net/?ip={ip}"
-#         request_data = requests.get(url=url)
-#         return Response({'county_name': request_data.json()["country_name"]}, status=status.HTTP_200_OK)
+    def get(self, request):
+        ip = request.META.get('REMOTE_ADDR')
+        url = f"https://api.iplocation.net/?ip={ip}"
+        request_data = requests.get(url=url)
+        return Response({'county_name': request_data.json()["country_name"]}, status=status.HTTP_200_OK)
 
 # jwt/refresh is dros bazashi useri ar chans
