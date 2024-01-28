@@ -86,3 +86,16 @@ class UserPromoCode(models.Model):
 
     def __str__(self):
         return self.promo_code.promo_code
+    
+class UserClickNotification(models.Model):
+    user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.user
+    
+class ReportUser(models.Model):
+    reporter = models.ForeignKey(NewUser, on_delete=models.CASCADE, related_name='reporter')
+    reported = models.ForeignKey(NewUser, on_delete=models.CASCADE, related_name='reported')
+    cause = models.TextField(max_length=15000)
+    date_created = models.DateTimeField(default=timezone.now)

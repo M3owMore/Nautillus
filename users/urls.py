@@ -14,7 +14,11 @@ from .views import (BlacklistTokenUpdateView,
                     CheckUserPromoCode,
                     DeleteUnactiveUsers,
                     CustomUserCreateView,
-                    GetUserIPLocation
+                    GetUserIPLocation,
+                    UserSeeNotifications,
+                    ReturnUserClickedNotifications,
+                    UserReporting,
+                    CustomChangeUsernameView
                 )
 
 app_name = 'users'
@@ -22,6 +26,7 @@ app_name = 'users'
 urlpatterns = [
     path('auth/login/', CustomTokenCreateView.as_view(), name='custom-token-create'),
     path('auth/users/', CustomUserCreateView.as_view({'post': 'create'}), name='custom-user-create'),
+    path('auth/users/me/', CustomChangeUsernameView.as_view(), name='custom-username-change'),
     # path('register/', CustomUserCreate.as_view(), name="create_user"),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
@@ -39,5 +44,8 @@ urlpatterns = [
     path('promo_code/', CheckUserPromoCode.as_view(), name='create-promo-code'),
     path('delete-unactive-users/', DeleteUnactiveUsers.as_view(), name='delete-unactive-users'),
     path('user_ip/', GetUserIPLocation.as_view(), name='user-ip-location'),
+    path('click/notification', UserSeeNotifications.as_view(), name='user-click-notification'),
+    path('clicked/notification', ReturnUserClickedNotifications.as_view(), name='user-clicked-notification'),
+    path('report/', UserReporting.as_view(), name='user-reporting'),
     # path('courses/lesson/image', ReturnLessonImage.as_view(), name='return-lesson-image'),
 ]

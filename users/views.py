@@ -8,8 +8,8 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from courses.models import CourseGroup
-from .models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode
-from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer, NotificationSerializer
+from .models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser
+from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer, NotificationSerializer, ReturnUserSerializer
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.exceptions import NotFound, APIException
 import docker
@@ -22,7 +22,6 @@ from datetime import timedelta
 from djoser.views import UserViewSet
 import requests
 
-
 User = get_user_model()
 
 class ActivationEmail(email.ActivationEmail):
@@ -34,8 +33,11 @@ class ActivationEmailConfirmation(email.ConfirmationEmail):
 class ChangeEmailConfirmation(email.ConfirmationEmail):
     template_name = 'emailChanged.html'
 
-class ResetPasswordEmail(email.PasswordResetEmail):
+class ResetPasswordConfirmationEmail(email.PasswordChangedConfirmationEmail):
     template_name = 'resetPass.html'
+
+class ResetPasswordEmail(email.PasswordResetEmail):
+    template_name = 'passwordReset.html'
 
 class BlacklistTokenUpdateView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -76,10 +78,43 @@ class CustomUserCreateView(UserViewSet):
         # Add your custom validation logic here
         if not serializer.validated_data['user_name'].isalnum():
             return Response({"user_name": "Username must contain only letters and numbers."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        elif not serializer.validated_data['user_name'].isascii():
+            return Response({"user_name": "Username must contain only English letters."}, status=status.HTTP_400_BAD_REQUEST)
 
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class CustomChangeUsernameView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = User.objects.filter(user_name=request.user.user_name)[0]
+
+        serializer = ReturnUserSerializer(user)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        try:
+            new_user_name = request.data['new_user_name']
+            user = User.objects.filter(user_name=request.user.user_name)[0]
+
+            if not new_user_name.isalnum():
+                return Response({"user_name": "Username must contain only letters and numbers."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            elif not new_user_name.isascii():
+                return Response({"user_name": "Username must contain only English letters."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user.user_name = new_user_name
+            user.save()
+
+            return Response({"user_name": "user_name successfully changed"}, status=status.HTTP_200_OK)
+        
+        except Exception as error:
+            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
         
 
 class CustomTokenCreateView(TokenObtainPairView):
@@ -148,12 +183,8 @@ class CourseOpenView(generics.ListAPIView):
 
                 user_course_page = UserCoursePage.objects.filter(user=user, course=purchased_course)
                 if user_course_page:
-                    if self.request.GET.get('page'):
-                        user_course_page[0].page = self.request.GET.get('page')
-                        user_course_page[0].save()
-                    else: 
-                        user_course_page[0].page = 1
-                        user_course_page[0].save()
+                    user_course_page[0].page = self.request.GET.get('page')
+                    user_course_page[0].save()
 
                 else:
                     UserCoursePage.objects.create(user=user, course=purchased_course, page=self.request.GET.get('page'))
@@ -312,7 +343,11 @@ class PayPalPaymentAPIView(views.APIView):
             return Response({'error': 'this course is already purchased'}, status=status.HTTP_400_BAD_REQUEST)
         
         else:
-            if PromoCode.objects.filter(promo_code=promo_code.lower()):
+            if course_price == 0.00:
+                UserCourse.objects.create(user=user, course=course)
+                return Response({'link': 'https://nautillus.org/courses/info/Python'}, status=status.HTTP_200_OK)
+
+            elif PromoCode.objects.filter(promo_code=promo_code.lower()):
                 promo_code_object = PromoCode.objects.filter(promo_code=promo_code.lower())[0]
                 
                 if UserPromoCode.objects.filter(user=user, promo_code=promo_code_object) or UserPromoCode.objects.filter(promo_code=promo_code_object).count() >= promo_code_object.people:
@@ -424,6 +459,47 @@ class ReturnNotifications(views.APIView):
         serializer = NotificationSerializer(last_7_days_notifications, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+class ReturnUserClickedNotifications(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = User.objects.filter(user_name=request.user.user_name)[0]
+            clicked = False
+            user_click = UserClickNotification.objects.filter(user=user)
+            if user_click:
+                user_click_time = user_click[0].date_created
+                last_notification = Notification.objects.last()
+
+                if user_click_time < last_notification.date_created:
+                    clicked = False
+                elif user_click_time > last_notification.date_created:
+                    clicked = True
+            
+            return Response({"clicked": clicked}, status=status.HTTP_200_OK)
+        
+        except Exception as error:
+            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+
+class UserSeeNotifications(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+
+        user = User.objects.filter(user_name=request.user.user_name)[0]
+
+        user_click = UserClickNotification.objects.filter(user=user)
+        if user_click:
+            user_click[0].date_created = timezone.now()
+            user_click[0].save()
+
+        else:
+            UserClickNotification.objects.create(user=user)
+        
+        return Response({"click": 'successfully clicked'}, status=status.HTTP_200_OK)
+        
 
 class CheckUserPromoCode(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -478,5 +554,26 @@ class GetUserIPLocation(views.APIView):
         url = f"https://api.iplocation.net/?ip={ip}"
         request_data = requests.get(url=url)
         return Response({'county_name': request_data.json()["country_name"]}, status=status.HTTP_200_OK)
+    
+
+class UserReporting(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            reporter = User.objects.filter(user_name=request.user.user_name)[0]
+            reported = User.objects.filter(user_name=request.data['reported'])[0]
+            cause = request.data['message']
+
+            if len(cause) == 0:
+                return Response({'error': 'message is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            ReportUser.objects.create(reporter=reporter, reported=reported, cause=cause)
+
+            return Response({'message': 'successfully reported'}, status=status.HTTP_200_OK)
+        
+        except Exception as error:
+            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)     
+
 
 # jwt/refresh is dros bazashi useri ar chans

@@ -157,9 +157,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny'
     ],
 
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ),
 }
 
 SIMPLE_JWT = {
@@ -214,7 +214,8 @@ DJOSER = {
     'EMAIL': {
         'activation': 'users.views.ActivationEmail',
         'confirmation': 'users.views.ActivationEmailConfirmation',
-        'password_changed_confirmation': 'users.views.ResetPasswordEmail',
+        'password_changed_confirmation': 'users.views.ResetPasswordConfirmationEmail',
+        'password_reset': 'users.views.ResetPasswordEmail',
         'username_changed_confirmation': 'users.views.ChangeEmailConfirmation',
     },
     'ACTIVATION_URL': 'http://localhost:5173/user/activation?uid={uid}&token={token}',

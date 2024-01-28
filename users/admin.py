@@ -1,6 +1,6 @@
 from django.contrib import admin
 from users.models import NewUser
-from users.models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode
+from users.models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser
 from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea, CharField
 from django import forms
@@ -52,6 +52,13 @@ class UserPromoCodeAdminConfig(ModelAdmin):
     model = UserPromoCode
     list_display = ('promo_code', 'user', 'id')
 
+class UserClickNotificationAdminConfig(ModelAdmin):
+    model = UserClickNotification
+    list_display = ('user', 'id')
+
+class ReportUserAdminConfig(ModelAdmin):
+    model = ReportUser
+    list_display = ('reporter', 'reported', 'id')
 
 admin.site.register(NewUser, UserAdminConfig)
 admin.site.register(UserCourse, UserCourseAdminConfig)
@@ -59,3 +66,5 @@ admin.site.register(Notification, NotificationAdminConfig)
 admin.site.register(UserCoursePage, UserCoursePageAdminConfig)
 admin.site.register(PromoCode, PromoCodeAdminConfig)
 admin.site.register(UserPromoCode, UserPromoCodeAdminConfig)
+admin.site.register(UserClickNotification, UserClickNotificationAdminConfig)
+admin.site.register(ReportUser, ReportUserAdminConfig)
