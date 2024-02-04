@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import views 
 import json
+from users.permissions import IsNotBanned
 
 User = get_user_model()
 
@@ -69,7 +70,7 @@ def get_user(username):
     return user
 
 class Rooms(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
     serializer_class = RoomSerializer
     queryset = Room.objects.all()
     # def get_queryset(self):
@@ -83,7 +84,7 @@ class Rooms(generics.ListAPIView):
             
 # gasatesti
 class RoomDetail(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
     serializer_class = RoomSerializer
     queryset = Room.objects.all()
 
@@ -145,7 +146,7 @@ class RoomDestroy(generics.RetrieveDestroyAPIView):
     
 
 class FriendsList(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -159,7 +160,7 @@ class FriendsList(views.APIView):
         
 
 class FriendRequestList(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -176,7 +177,7 @@ class FriendRequestList(views.APIView):
         
 
 class AddFriends(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         try:
@@ -201,7 +202,7 @@ class AddFriends(views.APIView):
     
 
 class RequestAddFriends(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         try:
@@ -223,7 +224,7 @@ class RequestAddFriends(views.APIView):
 
 
 class FriendRequestDecline(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         try:
@@ -240,7 +241,7 @@ class FriendRequestDecline(views.APIView):
         
 
 class ReturnUserInfo(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         try:
@@ -266,7 +267,7 @@ class ReturnUserInfo(views.APIView):
             return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
         
 class Unfriend(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         try:
@@ -289,7 +290,7 @@ class Unfriend(views.APIView):
         
 
 class SearchUser(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         try:
@@ -307,7 +308,7 @@ class SearchUser(views.APIView):
         
 
 class CheckChatNotifications(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
         user = User.objects.filter(user_name = request.user.user_name)[0]

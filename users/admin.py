@@ -6,19 +6,20 @@ from django.forms import TextInput, Textarea, CharField
 from django import forms
 from django.db import models
 from django.contrib.admin import ModelAdmin
-
+# from rest_framework_simplejwt.token_blacklist.models import OutstandingToken 
+# from rest_framework_simplejwt.token_blacklist.admin import OutstandingTokenAdmin 
 
 
 class UserAdminConfig(UserAdmin):
     model = NewUser
     search_fields = ('email', 'user_name')
-    list_filter = ('email', 'user_name', 'is_active', 'is_staff')
+    list_filter = ('email', 'user_name', 'is_active', 'is_staff', "is_banned")
     ordering = ('-start_date',)
     list_display = ('email','id', 'user_name',
-                    'is_active', 'is_staff')
+                    'is_active', 'is_staff', "is_banned")
     fieldsets = (
         (None, {'fields': ('email', 'user_name', 'profile_picture')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', "groups")}),
+        ('Permissions', {'fields': ('is_staff', 'is_active', "is_banned", "groups")}),
         ('Personal', {'fields': ('about', 'friends', 'start_date')}),
     )
     formfield_overrides = {
@@ -27,7 +28,7 @@ class UserAdminConfig(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'user_name', 'password1', 'password2', 'is_active', 'is_staff')}
+            'fields': ('email', 'user_name', 'password1', 'password2', 'is_active', 'is_staff', "is_banned")}
          ),
     )
 
@@ -59,6 +60,13 @@ class UserClickNotificationAdminConfig(ModelAdmin):
 class ReportUserAdminConfig(ModelAdmin):
     model = ReportUser
     list_display = ('reporter', 'reported', 'id')
+
+# class OutstandingTokenAdminConfig(OutstandingTokenAdmin):
+#     def has_delete_permission(self, *args, **kwargs):
+#         return True
+
+# admin.site.unregister(OutstandingToken)
+# admin.site.register(OutstandingToken, OutstandingTokenAdminConfig)
 
 admin.site.register(NewUser, UserAdminConfig)
 admin.site.register(UserCourse, UserCourseAdminConfig)

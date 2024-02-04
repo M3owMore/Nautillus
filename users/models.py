@@ -42,6 +42,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
         'about'), max_length=500, blank=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    is_banned = models.BooleanField(default=False)
     friends = models.ManyToManyField('self', blank=True)
     profile_picture = models.IntegerField(blank=True, default=False)
     objects = CustomAccountManager()
@@ -84,15 +85,10 @@ class UserPromoCode(models.Model):
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
     date_created = models.DateTimeField(default=timezone.now)
 
-    def __str__(self):
-        return self.promo_code.promo_code
     
 class UserClickNotification(models.Model):
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
     date_created = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.user
     
 class ReportUser(models.Model):
     reporter = models.ForeignKey(NewUser, on_delete=models.CASCADE, related_name='reporter')

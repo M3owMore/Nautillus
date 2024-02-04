@@ -33,7 +33,7 @@ class CourseDetail(views.APIView):
                 courseFromDb = Course.objects.get(title=item)
                 course = cache.get(item)
                 print("hit the cache")
-                if course.description != courseFromDb.description:
+                if course.price != courseFromDb.price or course.real_price != courseFromDb.real_price or course.price_geo != courseFromDb.price_geo:
                     cache.delete(course)
                     course = get_object_or_404(Course, title=item)
                     cache.set(item, course)

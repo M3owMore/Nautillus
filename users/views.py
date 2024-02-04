@@ -21,6 +21,7 @@ from nautillus.settings import FERNET_KEY
 from datetime import timedelta
 from djoser.views import UserViewSet
 import requests
+from .permissions import IsNotBanned
 
 User = get_user_model()
 
@@ -39,8 +40,9 @@ class ResetPasswordConfirmationEmail(email.PasswordChangedConfirmationEmail):
 class ResetPasswordEmail(email.PasswordResetEmail):
     template_name = 'passwordReset.html'
 
+
 class BlacklistTokenUpdateView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         try:
@@ -53,7 +55,7 @@ class BlacklistTokenUpdateView(views.APIView):
 
 
 class RemoveExpiredTokens(generics.DestroyAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def delete(self, request):
         try:
@@ -71,6 +73,8 @@ class RemoveExpiredTokens(generics.DestroyAPIView):
         
 
 class CustomUserCreateView(UserViewSet):
+    permission_classes = [permissions.AllowAny]
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -88,7 +92,7 @@ class CustomUserCreateView(UserViewSet):
 
 
 class CustomChangeUsernameView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
         user = User.objects.filter(user_name=request.user.user_name)[0]
@@ -161,7 +165,7 @@ class CustomTokenCreateView(TokenObtainPairView):
 
 
 class CourseOpenView(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
     queryset = UserCourse.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 1
@@ -209,7 +213,7 @@ class CourseOpenView(generics.ListAPIView):
 
         
 class ReturnLastUserCoursePage(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request, title):
         try:
@@ -227,9 +231,8 @@ class ReturnLastUserCoursePage(views.APIView):
             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class UserCoursesList(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
         user = request.user 
@@ -239,7 +242,7 @@ class UserCoursesList(views.APIView):
 
 
 class ReturnLessons(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request, course_name):
         chosenCourse = CourseGroup.objects.filter(keyword=course_name)
@@ -248,7 +251,7 @@ class ReturnLessons(views.APIView):
     
 
 class ExecuteCodeAPIView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         try:
@@ -309,7 +312,7 @@ class ExecuteCodeAPIView(views.APIView):
             output = container.decode('utf-8')
             
             if output == '':
-                return Response({'error': 'process time outed'}, status=status.HTTP_400_BAD_REQUEST) 
+                return Response({'error': 'no output'}, status=status.HTTP_400_BAD_REQUEST) 
             
             return Response({'output': output}, status=status.HTTP_200_OK) 
 
@@ -319,7 +322,7 @@ class ExecuteCodeAPIView(views.APIView):
 
 
 class ChangeProfilePicture(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         print(request.META.get('REMOTE_ADDR'))
@@ -331,13 +334,23 @@ class ChangeProfilePicture(views.APIView):
     
 
 class PayPalPaymentAPIView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         promo_code = request.data['promo_code']
         course = Course.objects.filter(title=request.data['title'])[0]
         user = User.objects.filter(user_name=request.user.user_name)[0]
-        course_price = course.price
+
+        # ip = request.META.get('REMOTE_ADDR')
+        # url = f"https://api.iplocation.net/?ip={ip}"
+        # request_data = requests.get(url=url)
+        # country_name = request_data.json()["country_name"]
+
+        # if country_name == "Georgia":
+        #     course_price = course.price_geo
+        # else:
+        #     course_price = course.price
+
 
         if UserCourse.objects.filter(user=user, course=course):
             return Response({'error': 'this course is already purchased'}, status=status.HTTP_400_BAD_REQUEST)
@@ -402,7 +415,7 @@ class PayPalPaymentAPIView(views.APIView):
 
 
 class PayPalExecuteAPIView(PayPalPaymentAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         # paypalrestsdk.configure({
@@ -451,16 +464,17 @@ class PayPalExecuteAPIView(PayPalPaymentAPIView):
         
 
 class ReturnNotifications(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
         date = timezone.now() - timedelta(days=7)
-        last_7_days_notifications = Notification.objects.filter(date_created__gte=date)
+        last_7_days_notifications = Notification.objects.filter(date_created__gte=date).order_by('-date_created')
         serializer = NotificationSerializer(last_7_days_notifications, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
 class ReturnUserClickedNotifications(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
         try:
@@ -482,9 +496,8 @@ class ReturnUserClickedNotifications(views.APIView):
             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
         
     
-
 class UserSeeNotifications(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
 
@@ -502,7 +515,7 @@ class UserSeeNotifications(views.APIView):
         
 
 class CheckUserPromoCode(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         promo_code = request.data['promo_code']
@@ -519,12 +532,11 @@ class CheckUserPromoCode(views.APIView):
                 return Response({"output": round(saled_price, 2)}, status=status.HTTP_200_OK)
 
         except:
-            return Response({'output': False}, status=status.HTTP_200_OK)
-        
+            return Response({'output': False}, status=status.HTTP_200_OK)   
 
 
 class DeleteUnactiveUsers(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
         try:
@@ -557,7 +569,7 @@ class GetUserIPLocation(views.APIView):
     
 
 class UserReporting(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
         try:

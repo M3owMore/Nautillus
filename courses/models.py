@@ -11,6 +11,7 @@ class Course(models.Model):
     big_description = models.TextField(blank=True) 
     big_description_geo = models.TextField(blank=True) 
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False)
+    price_geo = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False)
     real_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False)
     date_created = models.DateTimeField(default=timezone.now)
 
