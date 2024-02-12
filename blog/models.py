@@ -11,6 +11,9 @@ class Blog(models.Model):
     img_link = models.TextField(blank=True)
     date = models.DateTimeField(default=timezone.now)
 
+    def __str__(self):
+        return self.title
+
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

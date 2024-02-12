@@ -120,7 +120,10 @@ class CustomChangeUsernameView(views.APIView):
         except Exception as error:
             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
         
-
+# ara activirebuli useris loginis dros sxva errori minda daartyas da passwordis erroric sxvaa
+# arsebobs tu ara email tu arsebobs shevamowmot password tu sworia yvelaferi mara is_active false davwer gaaaqtiuros acc 
+# shemilia error cvladi calke shevqmna dictionary da iq iyos qartuli da 
+# inglisuri errorebi tengo gamomigzavnis ra enaze aq users da imis mixedvit daabrunebs 
 class CustomTokenCreateView(TokenObtainPairView):
     permission_classes = [permissions.AllowAny]
         

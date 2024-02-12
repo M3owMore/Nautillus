@@ -38,7 +38,7 @@ class BlogEdit(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ListComment(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     
     def post(self, request):
         try:
@@ -53,6 +53,7 @@ class ListComment(views.APIView):
                 response = {
                     'user_name': comment.user.user_name,
                     'profile_picture': comment.user.profile_picture,
+                    'comment_id': comment.id,
                     'comment': comment.comment,
                     'date': comment.date
                 }
