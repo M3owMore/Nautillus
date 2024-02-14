@@ -24,6 +24,7 @@ from .settings import STATIC_ROOT, STATIC_URL
 from django.conf.urls.static import static
 from django.urls import re_path as url
 from django.views.static import serve
+import debug_toolbar
 
 urlpatterns = [
     url(r'^static/(?P<path>.*)$', serve,{'document_root': STATIC_ROOT}),
@@ -35,5 +36,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('', include('chat.urls', namespace="chat"))
+    path('', include('chat.urls', namespace="chat")),
+    path("__debug__/", include("debug_toolbar.urls")),
+
 ]

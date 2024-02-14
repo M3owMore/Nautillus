@@ -22,6 +22,8 @@ from datetime import timedelta
 from djoser.views import UserViewSet
 import requests
 from .permissions import IsNotBanned
+import re
+from chat.models import Room
 
 User = get_user_model()
 
@@ -71,20 +73,83 @@ class RemoveExpiredTokens(generics.DestroyAPIView):
 
             return Response({'error': f'{error}'})
         
+        
+def has_symbol_or_number(input_string):
+    pattern = re.compile(r'[0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]')
+    return bool(pattern.search(input_string))
 
 class CustomUserCreateView(UserViewSet):
-    permission_classes = [permissions.AllowAny]
-
+    
     def create(self, request, *args, **kwargs):
+
+        if request.data['email'].strip() == '':
+            if request.data['lang'] == 'ge':
+                return Response({"error": "ელ-ფოსტის სექცია ცარიელია"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "email address section is empty"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        elif request.data['user_name'].strip() == '':
+            if request.data['lang'] == 'ge':
+                return Response({"error": "სახელის სექცია ცარიელია"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "username section is empty"}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif request.data['password'].strip() == '':
+            if request.data['lang'] == 'ge':
+                return Response({"error": "პაროლის სექცია ცარიელია"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "password section is empty"}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif request.data['re_password'].strip() == '':
+            if request.data['lang'] == 'ge':
+                return Response({"error": "გაიმეორეთ პაროლის სექცია ცარიელია"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "repeat password section is empty"}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif User.objects.filter(email=request.data['email']):
+            if request.data['lang'] == 'ge':
+                return Response({"error": "მომხმარებელი ამ ელ-ფოსტით უკვე არსებობს"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "User with this email address already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        elif User.objects.filter(user_name=request.data['user_name']):
+            if request.data['lang'] == 'ge':
+                return Response({"error": "მომხმარებელი ამ სახელით უკვე არსებობს"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "User with this username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif len(request.data['password']) < 8:
+            if request.data['lang'] == 'ge':
+                return Response({"error": "პაროლი უნდა იყოს მინიმუმ 8 სიმბოლო"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "Password should be at least 8 symbols"}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif not has_symbol_or_number(request.data['password']):
+            if request.data['lang'] == 'ge':
+                return Response({"error": "პაროლი უნდა შეიცავდეს მინიმუმ 1 სიმბოლოს ან რიცხვს"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "Password should contain at least 1 symbol or number"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        elif request.data['password'] != request.data['re_password']:
+            if request.data['lang'] == 'ge':
+                return Response({"error": "პაროლის სექციები არ ემთხვევა"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "Password sections does not match"}, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
-        # Add your custom validation logic here
+
         if not serializer.validated_data['user_name'].isalnum():
-            return Response({"user_name": "Username must contain only letters and numbers."}, status=status.HTTP_400_BAD_REQUEST)
+            if request.data['lang'] == 'ge':
+                return Response({"error": "სახელი უნდა შეიცავდეს მხოლოდ ასოებს და ციფრებს"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "Username must contain only letters and numbers."}, status=status.HTTP_400_BAD_REQUEST)
         
         elif not serializer.validated_data['user_name'].isascii():
-            return Response({"user_name": "Username must contain only English letters."}, status=status.HTTP_400_BAD_REQUEST)
+            if request.data['lang'] == 'ge':
+                return Response({"error": "სახელი უნდა შეიცავდეს მხოლოდ ინგლისურ ასოებს"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({"error": "Username must contain only English letters."}, status=status.HTTP_400_BAD_REQUEST)
 
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -112,6 +177,26 @@ class CustomChangeUsernameView(views.APIView):
             elif not new_user_name.isascii():
                 return Response({"user_name": "Username must contain only English letters."}, status=status.HTTP_400_BAD_REQUEST)
             
+
+            all_rooms = Room.objects.filter(accessed_users=user)
+            for room in all_rooms:
+                seperated_room_name = room.name.split('_')
+
+                if seperated_room_name[1] == user.user_name:
+                    seperated_room_name[1] = new_user_name
+
+                elif seperated_room_name[2] == user.user_name:
+                    seperated_room_name[2] = new_user_name
+                
+                room_name = ''
+                for name in seperated_room_name:
+                    room_name += name + '_'
+                
+                new_room_name = room_name[:-1]
+                
+                room.name = new_room_name
+                room.save()
+
             user.user_name = new_user_name
             user.save()
 
@@ -120,10 +205,7 @@ class CustomChangeUsernameView(views.APIView):
         except Exception as error:
             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
         
-# ara activirebuli useris loginis dros sxva errori minda daartyas da passwordis erroric sxvaa
-# arsebobs tu ara email tu arsebobs shevamowmot password tu sworia yvelaferi mara is_active false davwer gaaaqtiuros acc 
-# shemilia error cvladi calke shevqmna dictionary da iq iyos qartuli da 
-# inglisuri errorebi tengo gamomigzavnis ra enaze aq users da imis mixedvit daabrunebs 
+
 class CustomTokenCreateView(TokenObtainPairView):
     permission_classes = [permissions.AllowAny]
         
@@ -135,9 +217,34 @@ class CustomTokenCreateView(TokenObtainPairView):
             'blacklisted tokens': 'not deleted'
         }
 
+        errors = {
+            "password_error": "Password is wrong",
+            "password_error_geo": "პაროლი არასწორია",
+
+            "email_error": 'Email is wrong',
+            "email_error_geo": 'ელ-ფოსტა არასწორია',
+
+            'activation_error': 'User is not activated, please click "Resend activation" button below',
+            'activation_error_geo': 'მომხმარებელი არ არის აქტივირებული, გთხოვთ დააკლიკეთ "აქტივაციის თავიდან გამოგზავნა"-ს დაბლა'
+        }
+
         try:
             
-            if User.objects.filter(email=request.data['email']) and request.data['password']:
+            if User.objects.filter(email=request.data['email']):
+                user = User.objects.filter(email=request.data['email'])[0]
+
+                if not user.check_password(request.data['password']):
+                    if request.data['lang'] == "ge":
+                        return Response({'error': errors['password_error_geo']}, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    return Response({'error': errors['password_error']}, status=status.HTTP_400_BAD_REQUEST)
+                
+                elif not user.is_active:
+                    if request.data['lang'] == "ge":
+                        return Response({'error': errors['activation_error_geo']}, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    return Response({'error': errors['activation_error']}, status=status.HTTP_400_BAD_REQUEST)
+                
                 user = User.objects.filter(email=request.data['email'])[0]
                 expired_tokens = OutstandingToken.objects.filter(expires_at__lt=timezone.now(), user=user)
                 
@@ -151,16 +258,18 @@ class CustomTokenCreateView(TokenObtainPairView):
                         existing_token.delete()
                         response['blacklisted tokens'] = 'deleted'
 
-                        
                 if existing_tokens.count() > token_limit:
                     response['error'] = 'Maximum different log in count reached.'
                     return Response(response, status=status.HTTP_403_FORBIDDEN)
 
                 else:
-                    return Response({'tokens': super().post(request, *args, **kwargs).data, 'response': response})
-            
+                    return Response({'tokens': super().post(request, *args, **kwargs).data, 'response': response})  
+                       
             else:
-                return Response({'error': 'Email or Password is wrong'}, status=status.HTTP_400_BAD_REQUEST)
+                if request.data['lang'] == "ge":
+                    return Response({'error': errors['email_error_geo']}, status=status.HTTP_400_BAD_REQUEST)
+                
+                return Response({'error': errors['email_error']}, status=status.HTTP_400_BAD_REQUEST)
             
         except Exception as error:
 
@@ -538,27 +647,27 @@ class CheckUserPromoCode(views.APIView):
             return Response({'output': False}, status=status.HTTP_200_OK)   
 
 
-class DeleteUnactiveUsers(views.APIView):
-    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
+# class DeleteUnactiveUsers(views.APIView):
+#     permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
-    def get(self, request):
-        try:
-            deleted = False
-            today = timezone.now()
-            seven_day_before = today - timedelta(days=7)
-            last_7_days_unactive_users = User.objects.filter(start_date__lte=seven_day_before)
-            print(last_7_days_unactive_users)
-            for user in last_7_days_unactive_users:
-                if user.is_active == False:
-                    deleted = True
-                    user.delete()
-            if deleted:
-                return Response({'error': f'unactive users deleted successfully'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'error': f'no unactive users'}, status=status.HTTP_200_OK)
+#     def get(self, request):
+#         try:
+#             deleted = False
+#             today = timezone.now()
+#             seven_day_before = today - timedelta(days=7)
+#             last_7_days_unactive_users = User.objects.filter(start_date__lte=seven_day_before)
+#             print(last_7_days_unactive_users)
+#             for user in last_7_days_unactive_users:
+#                 if user.is_active == False:
+#                     deleted = True
+#                     user.delete()
+#             if deleted:
+#                 return Response({'error': f'unactive users deleted successfully'}, status=status.HTTP_200_OK)
+#             else:
+#                 return Response({'error': f'no unactive users'}, status=status.HTTP_200_OK)
 
-        except Exception as error:
-            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+#         except Exception as error:
+#             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetUserIPLocation(views.APIView):

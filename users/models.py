@@ -35,7 +35,9 @@ class CustomAccountManager(BaseUserManager):
 
 # kursebia dasamatebeli sadac iqneba open time romelic shinaxavs bolo gaxsnis dros da imis mixedvit dasortavs
 class NewUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(_('email address'), unique=True, error_messages={
+        'unique': _("This email se."),
+    }) 
     user_name = models.CharField(max_length=20, unique=True, validators=[MinLengthValidator(3)])
     start_date = models.DateTimeField(default=timezone.now)
     about = models.TextField(_(
