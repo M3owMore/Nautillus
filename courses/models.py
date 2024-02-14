@@ -26,6 +26,8 @@ class CourseGroup(models.Model):
     main_text = models.TextField(blank=True)
     main_text_geo = models.TextField(blank=True)
     code = models.TextField(blank=True) 
+    tasks = models.TextField(blank=True)
+    tasks_geo = models.TextField(blank=True)
     date_created = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
@@ -39,5 +41,3 @@ class CourseGroup(models.Model):
 # class CourseGroupImage(models.Model):
 #     course = models.ForeignKey(CourseGroup, on_delete=models.CASCADE)
 #     image = models.ImageField(upload_to='image/', blank=True)
-
-    
