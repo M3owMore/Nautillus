@@ -27,6 +27,7 @@ class CourseGroup(models.Model):
     main_text_geo = models.TextField(blank=True)
     code = models.TextField(blank=True) 
     tasks = models.TextField(blank=True)
+    tasks_geo = models.TextField(blank=True)
     date_created = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
