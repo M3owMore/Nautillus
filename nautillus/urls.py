@@ -27,7 +27,8 @@ from django.views.static import serve
 
 urlpatterns = [
     url(r'^static/(?P<path>.*)$', serve,{'document_root': STATIC_ROOT}),
-    path('admin/', admin.site.urls),
+    path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
+    path('R69HGe/', admin.site.urls),
     path('', TemplateView.as_view(template_name='index.html')),
     path('api/', include('courses.urls', namespace='courses_api')),
     path('api/', include('blog.urls', namespace='blog_api')),

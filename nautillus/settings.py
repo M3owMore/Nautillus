@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "users",
     "rest_framework_simplejwt.token_blacklist",
     'blog',
+    'admin_honeypot',
 ]
 
 MIDDLEWARE = [
@@ -157,9 +158,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny'
     ],
 
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }
 
 SIMPLE_JWT = {
@@ -249,7 +250,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'nautillusgroup@gmail.com'
-EMAIL_HOST_PASSWORD = 'mteq ubja exti ybxy'
+EMAIL_HOST_PASSWORD = 'peds xxbc uouu dwkr'
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'Nautillus <nautillusgroup@gmail.com>'
 

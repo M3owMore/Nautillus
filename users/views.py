@@ -106,7 +106,7 @@ class CustomUserCreateView(UserViewSet):
             
             return Response({"error": "repeat password section is empty"}, status=status.HTTP_400_BAD_REQUEST)
 
-        elif User.objects.filter(email=request.data['email']):
+        elif User.objects.filter(email=request.data['email'].lower()):
             if request.data['lang'] == 'ge':
                 return Response({"error": "მომხმარებელი ამ ელ-ფოსტით უკვე არსებობს"}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -136,6 +136,9 @@ class CustomUserCreateView(UserViewSet):
             
             return Response({"error": "Password sections does not match"}, status=status.HTTP_400_BAD_REQUEST)
         
+
+        request.data['email'] = request.data['email'].lower()
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -230,8 +233,8 @@ class CustomTokenCreateView(TokenObtainPairView):
 
         try:
             
-            if User.objects.filter(email=request.data['email']):
-                user = User.objects.filter(email=request.data['email'])[0]
+            if User.objects.filter(email=request.data['email'].lower()):
+                user = User.objects.filter(email=request.data['email'].lower())[0]
 
                 if not user.check_password(request.data['password']):
                     if request.data['lang'] == "ge":
@@ -245,7 +248,6 @@ class CustomTokenCreateView(TokenObtainPairView):
                     
                     return Response({'error': errors['activation_error']}, status=status.HTTP_400_BAD_REQUEST)
                 
-                user = User.objects.filter(email=request.data['email'])[0]
                 expired_tokens = OutstandingToken.objects.filter(expires_at__lt=timezone.now(), user=user)
                 
                 if expired_tokens:
@@ -263,6 +265,7 @@ class CustomTokenCreateView(TokenObtainPairView):
                     return Response(response, status=status.HTTP_403_FORBIDDEN)
 
                 else:
+                    request.data["email"] = request.data["email"].lower()
                     return Response({'tokens': super().post(request, *args, **kwargs).data, 'response': response})  
                        
             else:
@@ -468,12 +471,13 @@ class PayPalPaymentAPIView(views.APIView):
             return Response({'error': 'this course is already purchased'}, status=status.HTTP_400_BAD_REQUEST)
         
         else:
+            course_price = course.price
             if course_price == 0.00:
                 UserCourse.objects.create(user=user, course=course)
                 return Response({'link': 'https://nautillus.org/courses/info/Python'}, status=status.HTTP_200_OK)
 
-            elif PromoCode.objects.filter(promo_code=promo_code.lower()):
-                promo_code_object = PromoCode.objects.filter(promo_code=promo_code.lower())[0]
+            elif PromoCode.objects.filter(promo_code=promo_code):
+                promo_code_object = PromoCode.objects.filter(promo_code=promo_code)[0]
                 
                 if UserPromoCode.objects.filter(user=user, promo_code=promo_code_object) or UserPromoCode.objects.filter(promo_code=promo_code_object).count() >= promo_code_object.people:
                     print("promo code is unavailable")
@@ -559,8 +563,8 @@ class PayPalExecuteAPIView(PayPalPaymentAPIView):
         if payment.execute({"payer_id": payer_id}):
             user = User.objects.filter(user_name=request.user.user_name)[0]
             
-            if PromoCode.objects.filter(promo_code=decrypted_promo_code.lower()):
-                promo_code_object = PromoCode.objects.filter(promo_code=decrypted_promo_code.lower())[0]
+            if PromoCode.objects.filter(promo_code=decrypted_promo_code):
+                promo_code_object = PromoCode.objects.filter(promo_code=decrypted_promo_code)[0]
                 
                 if UserPromoCode.objects.filter(user=user, promo_code=promo_code_object) or UserPromoCode.objects.filter(promo_code=promo_code_object).count() >= promo_code_object.people:
                     print("promo code is unavailable in exec")
