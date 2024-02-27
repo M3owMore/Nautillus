@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "users",
     "rest_framework_simplejwt.token_blacklist",
+    'tasks_projects',
     'blog',
     'admin_honeypot',
 ]
@@ -158,9 +159,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny'
     ],
 
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ),
 }
 
 SIMPLE_JWT = {

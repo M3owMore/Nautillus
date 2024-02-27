@@ -32,6 +32,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html')),
     path('api/', include('courses.urls', namespace='courses_api')),
     path('api/', include('blog.urls', namespace='blog_api')),
+    path('api/', include('tasks_projects.urls', namespace='tasks_projects_api')),
     path('api/user/', include('users.urls', namespace='users')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
