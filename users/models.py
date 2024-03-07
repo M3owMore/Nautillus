@@ -45,6 +45,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     is_banned = models.BooleanField(default=False)
     friends = models.ManyToManyField('self', blank=True)
     profile_picture = models.IntegerField(blank=True, default=False)
+    xp = models.IntegerField(blank=True, default=0)
     objects = CustomAccountManager()
 
     USERNAME_FIELD = 'email'

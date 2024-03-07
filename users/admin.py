@@ -13,12 +13,12 @@ from django.contrib.admin import ModelAdmin
 class UserAdminConfig(UserAdmin):
     model = NewUser
     search_fields = ('email', 'user_name')
-    list_filter = ('email', 'user_name', 'is_active', 'is_staff', "is_banned")
+    list_filter = ('email', 'user_name', 'is_active', 'is_staff', "is_banned", "xp")
     ordering = ('-start_date',)
     list_display = ('email','id', 'user_name',
-                    'is_active', 'is_staff', "is_banned")
+                    'is_active', 'is_staff', "is_banned", "xp")
     fieldsets = (
-        (None, {'fields': ('email', 'user_name', 'profile_picture')}),
+        (None, {'fields': ('email', 'user_name', 'profile_picture', "xp")}),
         ('Permissions', {'fields': ('is_staff', 'is_active', "is_banned", "groups")}),
         ('Personal', {'fields': ('about', 'friends', 'start_date')}),
     )
@@ -28,7 +28,7 @@ class UserAdminConfig(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'user_name', 'password1', 'password2', 'is_active', 'is_staff', "is_banned")}
+            'fields': ('email', 'user_name', 'password1', 'password2', 'is_active', 'is_staff', "is_banned", "xp")}
          ),
     )
 

@@ -4,7 +4,7 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import views, generics, permissions, status
 from courses.models import CourseGroup
-from .models import Task, TaskGeo
+from .models import Task, SubmittedTask
 from users.permissions import IsNotBanned
 from .serializers import TasksSerializer
 import json
@@ -43,20 +43,29 @@ class UploadTasks(views.APIView):
 #                 lesson=course_group,
 #                 date_created=timezone.now()
 #             )
-        course_groups = CourseGroup.objects.filter(keyword='Python')
+        
 
-        for course in course_groups:
-            if course.tasks != "":
-                course_jsons = json.loads(course.tasks)
-                for course_json in course_jsons:
-                    print(course_json["question"])
-                    task = Task.objects.create(
-                        content=course_json['question'],
-                        code=course_json['code'],
-                        answers=json.dumps(course_json['answers']),
-                        lesson=course,
-                        date_created=timezone.now()
-                    )
+        # course_groups = CourseGroup.objects.filter(keyword='Python')
+
+        # for course in course_groups:
+        #     if course.tasks != "":
+        #         course_jsons = json.loads(course.tasks)
+        #         course_jsons_geo = json.loads(course.tasks_geo)
+        #         for course_json, course_json_geo in zip(course_jsons, course_jsons_geo):
+        #             print(course_json["question"])
+        #             task = Task.objects.create(
+        #                 content=course_json['question'],
+        #                 content_geo=course_json_geo['question'],
+        #                 code=course_json['code'],
+        #                 answers=json.dumps(course_json['answers']),
+        #                 lesson=course,
+        #                 date_created=timezone.now()
+        #             )
+
+
+        
+
+             
 
         return Response({"asdf": "asdf"})
 
@@ -66,16 +75,14 @@ class ReturnTasks(views.APIView):
 
     def post(self, request):
         lesson = request.data['lesson']
-        language = request.data['lang']
 
         lesson_obj = CourseGroup.objects.filter(title=lesson)[0]
 
-        if language == 'ge':
-            tasks = TaskGeo.objects.filter(lesson=lesson_obj)
-        else:
-            tasks = Task.objects.filter(lesson=lesson_obj)
+        tasks = Task.objects.filter(lesson=lesson_obj)
 
         serializer = TasksSerializer(tasks, many=True)
+
+        print(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -84,6 +91,8 @@ class CheckTasks(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
+        user = User.objects.filter(user_name=request.user.user_name)[0]
+
         task = Task.objects.filter(id=request.data['task_id'])[0]
 
         user_answer = request.data['answer']
@@ -94,6 +103,13 @@ class CheckTasks(views.APIView):
             print(f'user {user_answer[i]}')
             print(f'task {task_answer[i]}')
             if user_answer[i] != task_answer[i]:
-                return Response({'answer_is_right': False}, status=status.HTTP_200_OK)
+                return Response({'answer_is_right': False, 'is_submitted': False}, status=status.HTTP_200_OK)
+        
+        if SubmittedTask.objects.filter(user=user, task=task):
+            return Response({'answer_is_right': True, 'is_submitted': True}, status=status.HTTP_200_OK)
 
-        return Response({'answer_is_right': True}, status=status.HTTP_200_OK)
+        SubmittedTask.objects.create(user=user, task=task)
+        user.xp += task.xp
+        user.save()
+
+        return Response({'answer_is_right': True, 'is_submitted': False}, status=status.HTTP_200_OK)
