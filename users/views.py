@@ -106,7 +106,11 @@ class CustomUserCreateView(UserViewSet):
             
             return Response({"error": "repeat password section is empty"}, status=status.HTTP_400_BAD_REQUEST)
 
+<<<<<<< HEAD
         elif User.objects.filter(email=request.data['email'].lower()):
+=======
+        elif User.objects.filter(email=request.data['email']):
+>>>>>>> 3b0d33bd51457d43f2db7908a5ebf60cd0da3c24
             if request.data['lang'] == 'ge':
                 return Response({"error": "მომხმარებელი ამ ელ-ფოსტით უკვე არსებობს"}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -136,9 +140,12 @@ class CustomUserCreateView(UserViewSet):
             
             return Response({"error": "Password sections does not match"}, status=status.HTTP_400_BAD_REQUEST)
         
+<<<<<<< HEAD
 
         request.data['email'] = request.data['email'].lower()
 
+=======
+>>>>>>> 3b0d33bd51457d43f2db7908a5ebf60cd0da3c24
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -233,8 +240,13 @@ class CustomTokenCreateView(TokenObtainPairView):
 
         try:
             
+<<<<<<< HEAD
             if User.objects.filter(email=request.data['email'].lower()):
                 user = User.objects.filter(email=request.data['email'].lower())[0]
+=======
+            if User.objects.filter(email=request.data['email']):
+                user = User.objects.filter(email=request.data['email'])[0]
+>>>>>>> 3b0d33bd51457d43f2db7908a5ebf60cd0da3c24
 
                 if not user.check_password(request.data['password']):
                     if request.data['lang'] == "ge":
@@ -248,6 +260,10 @@ class CustomTokenCreateView(TokenObtainPairView):
                     
                     return Response({'error': errors['activation_error']}, status=status.HTTP_400_BAD_REQUEST)
                 
+<<<<<<< HEAD
+=======
+                user = User.objects.filter(email=request.data['email'])[0]
+>>>>>>> 3b0d33bd51457d43f2db7908a5ebf60cd0da3c24
                 expired_tokens = OutstandingToken.objects.filter(expires_at__lt=timezone.now(), user=user)
                 
                 if expired_tokens:
@@ -265,7 +281,10 @@ class CustomTokenCreateView(TokenObtainPairView):
                     return Response(response, status=status.HTTP_403_FORBIDDEN)
 
                 else:
+<<<<<<< HEAD
                     request.data["email"] = request.data["email"].lower()
+=======
+>>>>>>> 3b0d33bd51457d43f2db7908a5ebf60cd0da3c24
                     return Response({'tokens': super().post(request, *args, **kwargs).data, 'response': response})  
                        
             else:
