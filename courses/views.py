@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import Course
-from .serializers import CourseSerializer
+from .models import Course, CourseBundle
+from .serializers import CourseSerializer, CourseBundleSerializer
 from rest_framework import permissions 
 from rest_framework.response import Response
 from rest_framework import status
@@ -72,4 +72,21 @@ class CourseCreate(generics.CreateAPIView):
     queryset = Course.objects.all()
 
 
+class CourseBundleList(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = CourseBundleSerializer
+    queryset = CourseBundle.objects.all()
+    queryset = queryset.order_by('-date_created')  
 
+
+class ReturnCourseBundle(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, title):
+        bundle_title = title
+
+        bundle = CourseBundle.objects.filter(title=bundle_title)[0] 
+
+        serializer = CourseBundleSerializer(bundle)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

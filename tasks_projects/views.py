@@ -12,81 +12,33 @@ import json
 User = get_user_model()
 
 
-import json
-from django.utils import timezone
-from courses.models import CourseGroup
-
 class UploadTasks(views.APIView):
 
     def get(self, request):
-#         course_groups = CourseGroup.objects.filter(keyword='Python')
-#         print(course_groups)
 
-#         tasks_data = [
-#     {
-#         "question": "დაწერეთ ერთი სტრიქონიანი კომენტარი, რომელშიც ნათქვამია: 'This is a single-line comment.'",
-#         "code": " ### This is a single-line comment.",
-#         "answers": ["#"]
-#     },
-#     {
-#         "question": "დაწერეთ ერთსტრიქონიანი კომენტარი, რომელიც ხსნის კოდის შემდეგი ხაზის დანიშნულებას:'x = x + 1'",
-#         "code": "x = x + 1      ### Incrementing the value of x by 1",
-#         "answers": ["#"]
-#     }
-# ]
-#         for task_data in tasks_data:
-#             course_group = CourseGroup.objects.filter(title=task_data['lesson'])[0]
-#             task = Task.objects.create(
-#                 content=task_data['question'],
-#                 content_geo=task_data['question_geo'],
-#                 code=task_data['code'],
-#                 answers=json.dumps(task_data['answers']),
-#                 lesson=course_group,
-#                 date_created=timezone.now()
-#             )
-        
-#         return Response({"asdf": "asdf"})
+        tasks_data = []
 
-        # course_groups = CourseGroup.objects.filter(keyword='Python')
 
-        # for course in course_groups:
-        #     if course.tasks != "":
-        #         course_jsons = json.loads(course.tasks)
-        #         course_jsons_geo = json.loads(course.tasks_geo)
-        #         for course_json, course_json_geo in zip(course_jsons, course_jsons_geo):
-        #             print(course_json["question"])
-        #             task = Task.objects.create(
-        #                 content=course_json['question'],
-        #                 content_geo=course_json_geo['question'],
-        #                 code=course_json['code'],
-        #                 answers=json.dumps(course_json['answers']),
-        #                 lesson=course,
-        #                 date_created=timezone.now()
-        #             )
 
-        course_groups = CourseGroup.objects.filter(keyword='Python')
-        print(course_groups)
+        # for task_data in tasks_data:
+        #     course_group = CourseGroup.objects.filter(title=task_data['lesson'])[0]
+        #     task = MarkTask.objects.create(
+        #         content=task_data['content'],
+        #         content_geo=task_data['content_geo'],
+        #         options = json.dumps(task_data['options']),
+        #         options_geo = json.dumps(task_data['options_geo'], ensure_ascii=False),
+        #         answer=task_data['answer'],
+        #         lesson=course_group,
+        #         date_created=timezone.now()
+        #     )
 
-        tasks_data = [
-    {
-        "question": "დაწერეთ ერთი სტრიქონიანი კომენტარი, რომელშიც ნათქვამია: 'This is a single-line comment.'",
-        "code": " ### This is a single-line comment.",
-        "answers": ["#"]
-    },
-    {
-        "question": "დაწერეთ ერთსტრიქონიანი კომენტარი, რომელიც ხსნის კოდის შემდეგი ხაზის დანიშნულებას:'x = x + 1'",
-        "code": "x = x + 1      ### Incrementing the value of x by 1",
-        "answers": ["#"]
-    }
-]
         for task_data in tasks_data:
             course_group = CourseGroup.objects.filter(title=task_data['lesson'])[0]
-            task = MarkTask.objects.create(
-                content=task_data['content'],
-                content_geo=task_data['content_geo'],
-                options = task_data['options'],
-                options_geo = task_data['options_geo'],
-                answer=task_data['answer'],
+            task = Task.objects.create(
+                content=task_data['question'],
+                content_geo=task_data['question_geo'],
+                code=task_data["code"],
+                answers=json.dumps(task_data['answers']),
                 lesson=course_group,
                 date_created=timezone.now()
             )

@@ -8,6 +8,11 @@ class CourseGroupAdminConfig(ModelAdmin):
     search_fields = ('title',)
     list_display = ('title', 'id')
 
+class CourseBundleAdminConfig(ModelAdmin):
+    model = models.CourseBundle
+    search_fields = ('title',)
+    list_display = ('title', 'id')
+
 # class CourseGroupImageAdminConfig(ModelAdmin):
 #     model = models.CourseGroupImage
 #     search_fields = ('course',)
@@ -15,4 +20,5 @@ class CourseGroupAdminConfig(ModelAdmin):
 
 admin.site.register(models.Course)
 admin.site.register(models.CourseGroup, CourseGroupAdminConfig)
+admin.site.register(models.CourseBundle, CourseBundleAdminConfig)
 # admin.site.register(models.CourseGroupImage, CourseGroupImageAdminConfig)

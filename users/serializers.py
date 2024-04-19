@@ -58,7 +58,7 @@ class ReturnLessonsSerializer(serializers.ModelSerializer):
         model = CourseGroup
         fields = ('id', 'title', 'date_created')
 
-class ReturnUserSerializer(UserSerializer):    
+class ReturnUserSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
         read_only_fields = ('email', 'profile_picture')

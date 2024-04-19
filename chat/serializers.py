@@ -13,4 +13,4 @@ class RoomSerializer(serializers.ModelSerializer):
 class UserFriendsSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewUser
-        fields = ('id', 'user_name', 'profile_picture')
+        fields = ('id', 'user_name', 'profile_picture', 'xp')

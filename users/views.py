@@ -381,9 +381,9 @@ class ExecuteCodeAPIView(views.APIView):
                 or user_code.__contains__("import time")
                 or user_code.__contains__('#include <cstdlib>') 
                 or user_code.__contains__('#include <filesystem>') 
-                or user_code.__contains__('#include <stdlib.h>') 
                 or user_code.__contains__('system') 
                 or user_code.__contains__('sleep') 
+                or user_code.__contains__('Sleep') 
                 or user_code.__contains__("require 'open3'") 
                 or user_code.__contains__('require "open3"')
                 or user_code.__contains__('exec')
@@ -407,6 +407,13 @@ class ExecuteCodeAPIView(views.APIView):
                 container = client.containers.run(
                 'gcc:latest',
                 command=['timeout', '10s', 'sh', '-c', f'echo \'{user_code}\' > main.cpp && g++ -o main main.cpp && ./main'],
+                remove=True
+            )
+                
+            if language == 'Assembly':
+                container = client.containers.run(
+                'gcc:latest',
+                command=['timeout', '10s', 'sh', '-c', f'echo \'{user_code}\' > main.cpp && g++ -fpermissive -o main main.cpp && objdump -d -M intel main'],
                 remove=True
             )
 
