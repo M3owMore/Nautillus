@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils.translation import gettext_lazy as _
-from courses.models import Course
+from courses.models import Course, CourseBundle
 from django.core.validators import MinLengthValidator
 
 class CustomAccountManager(BaseUserManager):
@@ -59,6 +59,11 @@ class UserCourse(models.Model):
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     opened_at = models.DateTimeField(default=timezone.now)
+    purchased_at = models.DateTimeField(default=timezone.now)
+
+class UserBundleCourse(models.Model):
+    user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
+    course_bundle = models.ForeignKey(CourseBundle, on_delete=models.CASCADE)
     purchased_at = models.DateTimeField(default=timezone.now)
     
 

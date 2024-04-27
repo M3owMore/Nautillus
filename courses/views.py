@@ -82,11 +82,24 @@ class CourseBundleList(generics.ListAPIView):
 class ReturnCourseBundle(views.APIView):
     permission_classes = [permissions.AllowAny]
 
-    def post(self, request, title):
+    def get(self, request, title):
         bundle_title = title
 
         bundle = CourseBundle.objects.filter(title=bundle_title)[0] 
 
         serializer = CourseBundleSerializer(bundle)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.user.is_authenticated:
+            purchased_courses = []
+
+            for course in bundle.courses.all():
+                if UserCourse.objects.filter(user=request.user, course=course):
+                    purchased_courses.append(course)
+            
+            purchased_courses_serilizer = CourseSerializer(purchased_courses, many=True)
+
+            return Response({'bundle': serializer.data, 'purchased_courses': purchased_courses_serilizer.data}, status=status.HTTP_200_OK)
+
+            
+
+        return Response({'bundle': serializer.data, 'purchased_courses': []})

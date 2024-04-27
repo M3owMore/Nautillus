@@ -8,14 +8,14 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from courses.models import CourseGroup
-from .models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser
+from .models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser, UserBundleCourse
 from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer, NotificationSerializer, ReturnUserSerializer
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.exceptions import NotFound, APIException
 import docker
 from paypalrestsdk import Payment
 import paypalrestsdk
-from courses.models import Course
+from courses.models import Course, CourseBundle
 from cryptography.fernet import Fernet
 from nautillus.settings import FERNET_KEY
 from datetime import timedelta
@@ -24,6 +24,7 @@ import requests
 from .permissions import IsNotBanned
 import re
 from chat.models import Room
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -514,7 +515,7 @@ class PayPalPaymentAPIView(views.APIView):
                     "payment_method": "paypal"
                 },
                 "redirect_urls": {
-                    "return_url": f"http://localhost:5173/payment/execute/{encrypted_course_id}/{encrypted_promocode}",
+                    "return_url": f"http://localhost:5173/payment/execute/course/{encrypted_course_id}/{encrypted_promocode}",
                     "cancel_url": "yourdomain.com/payment/cancel/"
                 },
                 "transactions": [
@@ -584,7 +585,147 @@ class PayPalExecuteAPIView(PayPalPaymentAPIView):
             return Response({'success': 'Payment executed successfully'})
         else:
             return Response({'error': 'Payment execution failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BundlePayPalPaymentAPIView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
+
+    def post(self, request):
+        promo_code = request.data['promo_code']
+        # course = Course.objects.filter(title=request.data['title'])[0]
+        bundle = CourseBundle.objects.filter(title=request.data['title'])[0]
+        user = User.objects.filter(user_name=request.user.user_name)[0]
+
+        # ip = request.META.get('REMOTE_ADDR')
+        # url = f"https://api.iplocation.net/?ip={ip}"
+        # request_data = requests.get(url=url)
+        # country_name = request_data.json()["country_name"]
+
+        # if country_name == "Georgia":
+        #     course_price = course.price_geo
+        # else:
+        #     course_price = course.price
+        purchesed_courses = []
+        for course in bundle.courses.all():
+            if course.price != 0.00:  
+                if UserCourse.objects.filter(user=user).filter(course=course):
+                    purchesed_courses.append(course)
         
+        if len(purchesed_courses) > 2:
+            return Response({'error': 'you have more than 2 courses'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            purchesed_courses_price = 0
+            for purchesed_course in purchesed_courses:
+                purchesed_courses_price += round(float(purchesed_course.price) - (float(purchesed_course.price) * (bundle.bundle_sale / 100)), 2)
+            
+            bundle_price = round(bundle.price - Decimal(purchesed_courses_price), 2)
+
+            if PromoCode.objects.filter(promo_code=promo_code):
+                promo_code_object = PromoCode.objects.filter(promo_code=promo_code)[0]
+                
+                if UserPromoCode.objects.filter(user=user, promo_code=promo_code_object) or UserPromoCode.objects.filter(promo_code=promo_code_object).count() >= promo_code_object.people:
+                    print("promo code is unavailable")
+                else:
+                    print("promo code is available")
+                    bundle_price = round(float(bundle_price) - float(bundle_price) * promo_code_object.sale / 100, 2)
+
+            paypalrestsdk.configure({
+                "mode": "sandbox", # sandbox or live
+                "client_id": "AWKbqXDKcVY3rG5A2tSFC9RH6ahhVAWHd69vBcQxSTcvFyT2f69dP46D_8TzYkKal5MlCHyUmLxQ8vmY",
+                "client_secret": "EA1tf4Uk8iEWt24i2cIOYnNa4gl82SVuxQ6g0hXSEOK1BVTzGP-SSloegncN78yDamthz2QqSjvHjV6V" 
+                })
+            # paypalrestsdk.configure({
+            #     "mode": "live", # sandbox or live
+            #     "client_id": "ARx4gN3fHvLP0Tzme9Djm-W_0wjrPkyAyEuIETowB6DeyfA2x_bouwt75DJqn6TTSYe1CQwN-4K7xv0x",
+            #     "client_secret": "ENnEy5gTzIO31r3Q6PAWkaivdpLE2AXTXrNF0wUekW1ieipcodHxxcx47H69r_v34tg7BUKvb16HZvcl" 
+            # })
+            
+            key = FERNET_KEY
+            fernet = Fernet(key)
+            encrypted_bundle_id = fernet.encrypt(str(bundle.id).encode()).decode()
+            encrypted_promocode = fernet.encrypt(str(promo_code).encode()).decode()
+            print(bundle_price)
+            paypal_payment = Payment({
+                "intent": "sale",
+                "payer": {
+                    "payment_method": "paypal"
+                },
+                "redirect_urls": {
+                    "return_url": f"http://localhost:5173/payment/execute/bundle/{encrypted_bundle_id}/{encrypted_promocode}",
+                    "cancel_url": "yourdomain.com/payment/cancel/"
+                },
+                "transactions": [
+                    {
+                        "amount": {
+                            "total": f"{bundle_price}",  # Replace with your payment amount
+                            "currency": "USD"  # Replace with your currency code
+                        },
+                        "description": "Example payment description"
+                    }
+                ]
+            })
+
+            # Create the payment
+            if paypal_payment.create():
+                # Get the approval URL to redirect the user to PayPal
+                approval_url = next(link.href for link in paypal_payment.links if link.rel == 'approval_url')
+                return Response({'link': approval_url}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'Payment creation failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BundlePayPalExecuteAPIView(PayPalPaymentAPIView):
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
+
+    def post(self, request):
+        paypalrestsdk.configure({
+            "mode": "sandbox", # sandbox or live
+            "client_id": "AWKbqXDKcVY3rG5A2tSFC9RH6ahhVAWHd69vBcQxSTcvFyT2f69dP46D_8TzYkKal5MlCHyUmLxQ8vmY",
+            "client_secret": "EA1tf4Uk8iEWt24i2cIOYnNa4gl82SVuxQ6g0hXSEOK1BVTzGP-SSloegncN78yDamthz2QqSjvHjV6V" 
+            })
+        # paypalrestsdk.configure({
+        #     "mode": "live", # sandbox or live
+        #     "client_id": "ARx4gN3fHvLP0Tzme9Djm-W_0wjrPkyAyEuIETowB6DeyfA2x_bouwt75DJqn6TTSYe1CQwN-4K7xv0x",
+        #     "client_secret": "ENnEy5gTzIO31r3Q6PAWkaivdpLE2AXTXrNF0wUekW1ieipcodHxxcx47H69r_v34tg7BUKvb16HZvcl" 
+        #     })
+        
+        payment_id = request.data['payment_id']
+        payer_id = request.data['payer_id']
+
+        key = FERNET_KEY
+        fernet = Fernet(key)
+
+        encrypted_promo_code = request.data['promo_code']
+
+        decrypted_promo_code = fernet.decrypt(encrypted_promo_code).decode()
+
+        encrypted_bundle_id = request.data["bundle_id"]
+        decrypted_bundle_id = int(fernet.decrypt(encrypted_bundle_id).decode())
+        print(decrypted_bundle_id)
+        bundle = CourseBundle.objects.filter(id=decrypted_bundle_id)[0]
+
+        payment = Payment.find(payment_id)
+        if payment.execute({"payer_id": payer_id}):
+            user = User.objects.filter(user_name=request.user.user_name)[0]
+            
+            if PromoCode.objects.filter(promo_code=decrypted_promo_code):
+                promo_code_object = PromoCode.objects.filter(promo_code=decrypted_promo_code)[0]
+                
+                if UserPromoCode.objects.filter(user=user, promo_code=promo_code_object) or UserPromoCode.objects.filter(promo_code=promo_code_object).count() >= promo_code_object.people:
+                    print("promo code is unavailable in exec")
+                else:
+                    print("promo code is available in exec")
+                    UserPromoCode.objects.create(user=user, promo_code=promo_code_object)
+
+            UserBundleCourse.objects.create(user=user, course_bundle=bundle)
+            for course in bundle.courses.all():
+                if not UserCourse.objects.filter(user=user, course=course):
+                    UserCourse.objects.create(user=user, course=course)
+            
+            return Response({'success': 'Payment executed successfully'})
+        else:
+            return Response({'error': 'Payment execution failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ReturnNotifications(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsNotBanned]

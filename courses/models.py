@@ -51,6 +51,10 @@ class CourseBundle(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     real_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False, null=True)
+    bundle_sale = models.IntegerField(blank=True, default=0)
+
+    def __str__(self):
+        return self.title
 
 # class CourseGroupImage(models.Model):
 #     course = models.ForeignKey(CourseGroup, on_delete=models.CASCADE)

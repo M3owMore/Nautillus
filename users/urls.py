@@ -18,7 +18,9 @@ from .views import (BlacklistTokenUpdateView,
                     UserSeeNotifications,
                     ReturnUserClickedNotifications,
                     UserReporting,
-                    CustomChangeUsernameView
+                    CustomChangeUsernameView,
+                    BundlePayPalPaymentAPIView,
+                    BundlePayPalExecuteAPIView
                 )
 
 app_name = 'users'
@@ -39,6 +41,8 @@ urlpatterns = [
     path('change-pfp/', ChangeProfilePicture.as_view(), name='change-pfp'),
     path('paypal/create_payment/', PayPalPaymentAPIView.as_view(), name='create-payment'),
     path('paypal/execute/', PayPalExecuteAPIView.as_view(), name='execute-payment'),
+    path('bundle/paypal/create_payment/', BundlePayPalPaymentAPIView.as_view(), name='bundle-create-payment'),
+    path('bundle/paypal/execute/', BundlePayPalExecuteAPIView.as_view(), name='bundle-execute-payment'),
     path('notifications/', ReturnNotifications.as_view(), name='notifications'),
     path('courses/last/page/<str:title>', ReturnLastUserCoursePage.as_view(), name='last-user-opened-page'),
     path('promo_code/', CheckUserPromoCode.as_view(), name='create-promo-code'),

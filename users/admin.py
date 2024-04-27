@@ -1,6 +1,6 @@
 from django.contrib import admin
 from users.models import NewUser
-from users.models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser
+from users.models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser, UserBundleCourse
 from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea, CharField
 from django import forms
@@ -36,6 +36,10 @@ class UserCourseAdminConfig(ModelAdmin):
     model = UserCourse
     list_display = ('course', 'user', 'id')
 
+class UserCourseBundleAdminConfig(ModelAdmin):
+    model = UserBundleCourse
+    list_display = ('course_bundle', 'user', 'id')
+
 
 class NotificationAdminConfig(ModelAdmin):
     model = Notification
@@ -70,6 +74,7 @@ class ReportUserAdminConfig(ModelAdmin):
 
 admin.site.register(NewUser, UserAdminConfig)
 admin.site.register(UserCourse, UserCourseAdminConfig)
+admin.site.register(UserBundleCourse, UserCourseBundleAdminConfig)
 admin.site.register(Notification, NotificationAdminConfig)
 admin.site.register(UserCoursePage, UserCoursePageAdminConfig)
 admin.site.register(PromoCode, PromoCodeAdminConfig)
