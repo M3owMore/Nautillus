@@ -18,7 +18,12 @@ class CourseBundleAdminConfig(ModelAdmin):
 #     search_fields = ('course',)
 #     list_display = ('course', 'id')
 
+class TagAdminConfig(ModelAdmin):
+    model = models.Tag
+    list_display = ('tag_name', 'id')
+
 admin.site.register(models.Course)
 admin.site.register(models.CourseGroup, CourseGroupAdminConfig)
 admin.site.register(models.CourseBundle, CourseBundleAdminConfig)
+admin.site.register(models.Tag, TagAdminConfig)
 # admin.site.register(models.CourseGroupImage, CourseGroupImageAdminConfig)

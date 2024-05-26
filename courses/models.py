@@ -8,8 +8,12 @@ class Course(models.Model):
     level_geo = models.TextField(max_length=500, blank=True)
     description = models.TextField(max_length=5000000)
     description_geo = models.TextField(max_length=5000000, blank=True)
-    big_description = models.TextField(blank=True) 
-    big_description_geo = models.TextField(blank=True) 
+    big_description = models.TextField(blank=True)
+    big_description_geo = models.TextField(blank=True)
+    summary = models.TextField(blank=True)
+    summary_geo = models.TextField(blank=True)
+    lessons = models.TextField(blank=True)
+    tags = models.ManyToManyField('Tag', related_name='course_tags')
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False)
     price_geo = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False)
     real_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False)
@@ -18,7 +22,13 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
-    
+
+class Tag(models.Model):
+    tag_name = models.CharField(max_length=200)
+    date_created = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.tag_name
 
 class CourseGroup(models.Model):
     title = models.TextField(max_length=1000)

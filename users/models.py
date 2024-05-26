@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 from django.utils.translation import gettext_lazy as _
 from courses.models import Course, CourseBundle
 from django.core.validators import MinLengthValidator
+from datetime import date
 
 class CustomAccountManager(BaseUserManager):
 
@@ -101,3 +102,8 @@ class ReportUser(models.Model):
     reported = models.ForeignKey(NewUser, on_delete=models.CASCADE, related_name='reported')
     cause = models.TextField(max_length=15000)
     date_created = models.DateTimeField(default=timezone.now)
+
+class UserActivityLog(models.Model):
+    user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
+    activity_level = models.IntegerField(null=True, blank=True)
+    date_created = models.DateField(default=date.today)

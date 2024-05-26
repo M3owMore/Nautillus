@@ -8,6 +8,9 @@ from .models import Task, SubmittedTask, MarkTask, SubmittedMarkTask
 from users.permissions import IsNotBanned
 from .serializers import TasksSerializer, MarkTasksSerializer
 import json
+from users.models import UserActivityLog
+from datetime import date
+
 
 User = get_user_model()
 
@@ -69,6 +72,18 @@ class CheckTasks(views.APIView):
     def post(self, request):
         user = User.objects.filter(user_name=request.user.user_name)[0]
 
+        if UserActivityLog.objects.filter(user=user):
+            user_last_activity = UserActivityLog.objects.filter(user=user).last()
+
+            if user_last_activity.date_created != date.today() and user_last_activity.activity_level < 3:
+                UserActivityLog.objects.create(user=user, activity_level=3)
+
+            elif user_last_activity.activity_level < 3:
+                user_last_activity.activity_level = 3
+                user_last_activity.save()
+        else:
+                UserActivityLog.objects.create(user=user, activity_level=3)
+
         task = Task.objects.filter(id=request.data['task_id'])[0]
 
         user_answer = request.data['answer']
@@ -113,6 +128,19 @@ class CheckMarkTasks(views.APIView):
 
     def post(self, request):
         user = User.objects.filter(user_name=request.user.user_name)[0]
+
+        if UserActivityLog.objects.filter(user=user):
+            user_last_activity = UserActivityLog.objects.filter(user=user).last()
+
+            if user_last_activity.date_created != date.today() and user_last_activity.activity_level < 3:
+                UserActivityLog.objects.create(user=user, activity_level=3)
+
+            elif user_last_activity.activity_level < 3:
+                user_last_activity.activity_level = 3
+                user_last_activity.save()
+        else:
+                UserActivityLog.objects.create(user=user, activity_level=3)
+        
 
         task = MarkTask.objects.filter(id=request.data['task_id'])[0]
 

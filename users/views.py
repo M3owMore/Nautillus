@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from courses.models import CourseGroup
-from .models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser, UserBundleCourse
+from .models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser, UserBundleCourse, UserActivityLog
 from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer, NotificationSerializer, ReturnUserSerializer
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.exceptions import NotFound, APIException
@@ -25,6 +25,7 @@ from .permissions import IsNotBanned
 import re
 from chat.models import Room
 from decimal import Decimal
+from datetime import date
 
 User = get_user_model()
 
@@ -166,9 +167,25 @@ class CustomChangeUsernameView(views.APIView):
     def get(self, request):
         user = User.objects.filter(user_name=request.user.user_name)[0]
 
+        if UserActivityLog.objects.filter(user=user):
+            if UserActivityLog.objects.filter(user=user).last().date_created != date.today():
+                UserActivityLog.objects.create(user=user, activity_level=1)
+        else:
+            UserActivityLog.objects.create(user=user, activity_level=1)
+
+        activity_list = [0] * 182
+
+        for user_activity in UserActivityLog.objects.filter(user=user).order_by('-date_created'):
+            index = date.today() - user_activity.date_created
+
+            if index.days >= 182:
+                break
+
+            activity_list[int(index.days)] = user_activity.activity_level
+
         serializer = ReturnUserSerializer(user)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'user': serializer.data, 'activity_graph': activity_list}, status=status.HTTP_200_OK)
 
     def post(self, request):
         try:
@@ -290,6 +307,19 @@ class CourseOpenView(generics.ListAPIView):
     def get_queryset(self):
         try:
             user = self.request.user 
+
+            if UserActivityLog.objects.filter(user=user):
+                user_last_activity = UserActivityLog.objects.filter(user=user).last()
+
+                if user_last_activity.date_created != date.today() and user_last_activity.activity_level < 2:
+                    UserActivityLog.objects.create(user=user, activity_level=2)
+
+                elif user_last_activity.activity_level < 2:
+                    user_last_activity.activity_level = 2
+                    user_last_activity.save()
+            else:
+                UserActivityLog.objects.create(user=user, activity_level=2)
+
             purchased_course = Course.objects.filter(title=self.kwargs.get('pk'))[0]
 
             # save opend time
@@ -849,7 +879,8 @@ class UserReporting(views.APIView):
             return Response({'message': 'successfully reported'}, status=status.HTTP_200_OK)
         
         except Exception as error:
-            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)     
+            return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST) 
+
 
 
 # jwt/refresh is dros bazashi useri ar chans

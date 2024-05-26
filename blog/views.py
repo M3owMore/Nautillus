@@ -13,7 +13,7 @@ User = get_user_model()
 
 
 class CustomPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 6
 
     
 class BlogList(generics.ListAPIView):

@@ -20,7 +20,7 @@ from .views import (BlacklistTokenUpdateView,
                     UserReporting,
                     CustomChangeUsernameView,
                     BundlePayPalPaymentAPIView,
-                    BundlePayPalExecuteAPIView
+                    BundlePayPalExecuteAPIView,
                 )
 
 app_name = 'users'
