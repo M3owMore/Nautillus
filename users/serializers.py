@@ -62,7 +62,7 @@ class ReturnUserSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
         read_only_fields = ('email', 'profile_picture')
-        fields = ('id', 'email', 'user_name', 'profile_picture', 'xp')
+        fields = ('id', 'email', 'user_name', 'about', 'profile_picture', 'xp')
 
 class NotificationSerializer(UserSerializer):    
     class Meta(UserSerializer.Meta):

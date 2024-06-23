@@ -18,9 +18,11 @@ from .views import (BlacklistTokenUpdateView,
                     UserSeeNotifications,
                     ReturnUserClickedNotifications,
                     UserReporting,
-                    CustomChangeUsernameView,
+                    CustomUsernamePfpAboutChange,
                     BundlePayPalPaymentAPIView,
                     BundlePayPalExecuteAPIView,
+                    HandleAbout,
+                    ReturnUserInfo
                 )
 
 app_name = 'users'
@@ -28,7 +30,7 @@ app_name = 'users'
 urlpatterns = [
     path('auth/login/', CustomTokenCreateView.as_view(), name='custom-token-create'),
     path('auth/users/', CustomUserCreateView.as_view({'post': 'create'}), name='custom-user-create'),
-    path('auth/users/me/', CustomChangeUsernameView.as_view(), name='custom-username-change'),
+    path('auth/users/me/', CustomUsernamePfpAboutChange.as_view(), name='custom-username-pfp-about-change'),
     # path('register/', CustomUserCreate.as_view(), name="create_user"),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
@@ -51,5 +53,7 @@ urlpatterns = [
     path('click/notification', UserSeeNotifications.as_view(), name='user-click-notification'),
     path('clicked/notification', ReturnUserClickedNotifications.as_view(), name='user-clicked-notification'),
     path('report/', UserReporting.as_view(), name='user-reporting'),
+    path('about/', HandleAbout.as_view(), name='handle-about'),
+    path('return/info/<str:user_name>', ReturnUserInfo.as_view(), name='return-user-info'),
     # path('courses/lesson/image', ReturnLessonImage.as_view(), name='return-lesson-image'),
 ]

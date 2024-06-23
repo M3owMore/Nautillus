@@ -12,6 +12,9 @@ from rest_framework.response import Response
 from rest_framework import views 
 import json
 from users.permissions import IsNotBanned
+from users.models import UserActivityLog
+from datetime import date
+
 
 User = get_user_model()
 
@@ -243,10 +246,11 @@ class FriendRequestDecline(views.APIView):
 class ReturnUserInfo(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
-    def post(self, request):
+    def get(self, request, user_name):
         try:
-            user = User.objects.filter(user_name=request.data['user_name'])[0]
-            serializer = UserFriendsSerializer(user)
+            user = User.objects.filter(user_name=user_name)[0]
+            request_user_info = {}
+
             request_user = User.objects.filter(user_name=request.user.user_name)[0]
             request_user_info = {
                 'user_name': request_user.user_name,
@@ -260,8 +264,18 @@ class ReturnUserInfo(views.APIView):
                 request_user_info['received_request'] = True
             if request_user.friends.all().filter(user_name=user.user_name):
                 request_user_info['friend'] = True
+                
+            activity_list = [0] * 250
 
-            return Response({"serializer_data": serializer.data, "user_info": request_user_info}, status=status.HTTP_200_OK)
+            for user_activity in UserActivityLog.objects.filter(user=user).order_by('-date_created'):
+                index = date.today() - user_activity.date_created
+
+                if index.days >= 250:
+                    break
+
+                activity_list[int(index.days)] = user_activity.activity_level
+
+            return Response({"user_info": request_user_info, "activity_graph": activity_list}, status=status.HTTP_200_OK)
         
         except Exception as error:
             return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)

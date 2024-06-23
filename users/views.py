@@ -161,7 +161,7 @@ class CustomUserCreateView(UserViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class CustomChangeUsernameView(views.APIView):
+class CustomUsernamePfpAboutChange(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
@@ -173,12 +173,12 @@ class CustomChangeUsernameView(views.APIView):
         else:
             UserActivityLog.objects.create(user=user, activity_level=1)
 
-        activity_list = [0] * 182
+        activity_list = [0] * 250
 
         for user_activity in UserActivityLog.objects.filter(user=user).order_by('-date_created'):
             index = date.today() - user_activity.date_created
 
-            if index.days >= 182:
+            if index.days >= 250:
                 break
 
             activity_list[int(index.days)] = user_activity.activity_level
@@ -190,7 +190,16 @@ class CustomChangeUsernameView(views.APIView):
     def post(self, request):
         try:
             new_user_name = request.data['new_user_name']
+            pfp_number = request.data['pfp_number']
+            about = request.data['about']
             user = User.objects.filter(user_name=request.user.user_name)[0]
+
+            user.profile_picture = pfp_number
+            user.save()
+
+            user.about = about
+            user.save()
+
 
             if not new_user_name.isalnum():
                 return Response({"user_name": "Username must contain only letters and numbers."}, status=status.HTTP_400_BAD_REQUEST)
@@ -198,6 +207,8 @@ class CustomChangeUsernameView(views.APIView):
             elif not new_user_name.isascii():
                 return Response({"user_name": "Username must contain only English letters."}, status=status.HTTP_400_BAD_REQUEST)
             
+            elif User.objects.filter(user_name=new_user_name) and user.user_name != new_user_name:
+                return Response({"user_name": "Username is already in use"}, status=status.HTTP_400_BAD_REQUEST)
 
             all_rooms = Room.objects.filter(accessed_users=user)
             for room in all_rooms:
@@ -221,7 +232,7 @@ class CustomChangeUsernameView(views.APIView):
             user.user_name = new_user_name
             user.save()
 
-            return Response({"user_name": "user_name successfully changed"}, status=status.HTTP_200_OK)
+            return Response({"details": "user_name, pfp and about me successfully changed"}, status=status.HTTP_200_OK)
         
         except Exception as error:
             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
@@ -381,10 +392,31 @@ class UserCoursesList(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
+        data = []
+
         user = request.user 
         sorted_courses = UserCourse.objects.filter(user=user).order_by('-opened_at')
-        serializer = CourseOpenSerializer(sorted_courses, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        for sorted_course in sorted_courses:
+            course = Course.objects.filter(title=sorted_course.course.title)[0]
+            user_course_page = UserCoursePage.objects.filter(user=user, course=course)
+            if user_course_page:
+                print(user_course_page[0].page)
+                page = user_course_page[0].page
+            
+            else:
+                page = 1
+
+            serializer = CourseOpenSerializer(sorted_course).data
+
+            course_data = {
+                'course': serializer,
+                'page': page
+            }
+            
+            data.append(course_data)
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class ReturnLessons(views.APIView):
@@ -478,7 +510,6 @@ class ChangeProfilePicture(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def post(self, request):
-        print(request.META.get('REMOTE_ADDR'))
         pfp_number = request.data['pfp_number']
         user = request.user
         user.profile_picture = pfp_number
@@ -880,7 +911,44 @@ class UserReporting(views.APIView):
         
         except Exception as error:
             return Response({'error': f'{error}'}, status=status.HTTP_400_BAD_REQUEST) 
+        
 
+class HandleAbout(views.APIView):
+    permission_classes = [permissions.IsAuthenticated, IsNotBanned]
+
+    def post(self, request):
+        about = request.data['about']
+
+        user = User.objects.filter(user_name=request.user.user_name)[0]
+
+        user.about = about
+        user.save()
+
+        return Response({'data': user.about}, status=status.HTTP_200_OK)
+
+
+class ReturnUserInfo(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, user_name):
+        try:
+            user = User.objects.filter(user_name=user_name)[0]
+            serializer = ReturnUserSerializer(user)
+
+            activity_list = [0] * 182
+
+            for user_activity in UserActivityLog.objects.filter(user=user).order_by('-date_created'):
+                index = date.today() - user_activity.date_created
+
+                if index.days >= 182:
+                    break
+
+                activity_list[int(index.days)] = user_activity.activity_level
+
+            return Response({"user": serializer.data, "activity_graph": activity_list}, status=status.HTTP_200_OK)
+        
+        except Exception as error:
+            return Response({"error": f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # jwt/refresh is dros bazashi useri ar chans
