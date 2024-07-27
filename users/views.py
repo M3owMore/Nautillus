@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from courses.models import CourseGroup
-from .models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser, UserBundleCourse, UserActivityLog
+from .models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser, UserBundleCourse, UserActivityLog, UserIp
 from .serializers import CourseOpenSerializer, UserOpenCourseSerializer, ReturnLessonsSerializer, NotificationSerializer, ReturnUserSerializer
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.exceptions import NotFound, APIException
@@ -26,11 +26,31 @@ import re
 from chat.models import Room
 from decimal import Decimal
 from datetime import date
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 
 User = get_user_model()
 
 class ActivationEmail(email.ActivationEmail):
     template_name = 'activateEmail.html'
+
+    def send(self, *args, **kwargs):
+        user = kwargs.get('user')
+        language = self.request.data.get('locale', 'en')
+
+        activation_url = f'http://localhost:5173/{language}/user/activation?uid={kwargs.get("uid")}&token={kwargs.get("token")}'
+
+        context = {
+            'user': user,
+            'activation_url': activation_url,
+            'site_name': 'nautillus.org'
+        }
+
+        subject = 'Account activation nautillus.org'
+        message = render_to_string(self.template_name, context)
+        email = EmailMessage(subject, message, to=[self.request.data.get('email')])   
+        email.content_subtype = 'html'  # Specify that the content is HTML
+        email.send()
 
 class ActivationEmailConfirmation(email.ConfirmationEmail):
     template_name = 'activateEmailConfirmation.html'
@@ -43,6 +63,24 @@ class ResetPasswordConfirmationEmail(email.PasswordChangedConfirmationEmail):
 
 class ResetPasswordEmail(email.PasswordResetEmail):
     template_name = 'passwordReset.html'
+
+    def send(self, *args, **kwargs):
+        user = kwargs.get('user')
+        language = self.request.data.get('locale', 'en')
+        print(language)
+        reset_url = f'http://localhost:5173/{language}/user/forgotpass?uid={kwargs.get("uid")}&token={kwargs.get("token")}'
+
+        context = {
+            'user': user,
+            'reset_url': reset_url,
+            'site_name': 'nautillus.org'
+        }
+
+        subject = 'Password reset on nautillus.org'
+        message = render_to_string(self.template_name, context)
+        email = EmailMessage(subject, message, to=[self.request.data.get('email')])   
+        email.content_subtype = 'html'  # Specify that the content is HTML
+        email.send()
 
 
 class BlacklistTokenUpdateView(views.APIView):
@@ -83,75 +121,77 @@ def has_symbol_or_number(input_string):
 class CustomUserCreateView(UserViewSet):
     
     def create(self, request, *args, **kwargs):
+        # Make a mutable copy of the request data
+        data = request.data.copy()
 
-        if request.data['email'].strip() == '':
-            if request.data['lang'] == 'ge':
+        if data['email'].strip() == '':
+            if data['lang'] == 'ge':
                 return Response({"error": "ელ-ფოსტის სექცია ცარიელია"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "email address section is empty"}, status=status.HTTP_400_BAD_REQUEST)
         
-        elif request.data['user_name'].strip() == '':
-            if request.data['lang'] == 'ge':
+        elif data['user_name'].strip() == '':
+            if data['lang'] == 'ge':
                 return Response({"error": "სახელის სექცია ცარიელია"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "username section is empty"}, status=status.HTTP_400_BAD_REQUEST)
 
-        elif request.data['password'].strip() == '':
-            if request.data['lang'] == 'ge':
+        elif data['password'].strip() == '':
+            if data['lang'] == 'ge':
                 return Response({"error": "პაროლის სექცია ცარიელია"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "password section is empty"}, status=status.HTTP_400_BAD_REQUEST)
 
-        elif request.data['re_password'].strip() == '':
-            if request.data['lang'] == 'ge':
+        elif data['re_password'].strip() == '':
+            if data['lang'] == 'ge':
                 return Response({"error": "გაიმეორეთ პაროლის სექცია ცარიელია"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "repeat password section is empty"}, status=status.HTTP_400_BAD_REQUEST)
 
-        elif User.objects.filter(email=request.data['email'].lower()):
-            if request.data['lang'] == 'ge':
+        elif User.objects.filter(email=data['email'].lower()).exists():
+            if data['lang'] == 'ge':
                 return Response({"error": "მომხმარებელი ამ ელ-ფოსტით უკვე არსებობს"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "User with this email address already exists"}, status=status.HTTP_400_BAD_REQUEST)
         
-        elif User.objects.filter(user_name=request.data['user_name']):
-            if request.data['lang'] == 'ge':
+        elif User.objects.filter(user_name=data['user_name']).exists():
+            if data['lang'] == 'ge':
                 return Response({"error": "მომხმარებელი ამ სახელით უკვე არსებობს"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "User with this username already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        elif len(request.data['password']) < 8:
-            if request.data['lang'] == 'ge':
+        elif len(data['password']) < 8:
+            if data['lang'] == 'ge':
                 return Response({"error": "პაროლი უნდა იყოს მინიმუმ 8 სიმბოლო"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "Password should be at least 8 symbols"}, status=status.HTTP_400_BAD_REQUEST)
 
-        elif not has_symbol_or_number(request.data['password']):
-            if request.data['lang'] == 'ge':
+        elif not has_symbol_or_number(data['password']):
+            if data['lang'] == 'ge':
                 return Response({"error": "პაროლი უნდა შეიცავდეს მინიმუმ 1 სიმბოლოს ან რიცხვს"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "Password should contain at least 1 symbol or number"}, status=status.HTTP_400_BAD_REQUEST)
         
-        elif request.data['password'] != request.data['re_password']:
-            if request.data['lang'] == 'ge':
+        elif data['password'] != data['re_password']:
+            if data['lang'] == 'ge':
                 return Response({"error": "პაროლის სექციები არ ემთხვევა"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "Password sections does not match"}, status=status.HTTP_400_BAD_REQUEST)
         
 
-        request.data['email'] = request.data['email'].lower()
+        data['email'] = data['email'].lower()
 
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
 
         if not serializer.validated_data['user_name'].isalnum():
-            if request.data['lang'] == 'ge':
+            if data['lang'] == 'ge':
                 return Response({"error": "სახელი უნდა შეიცავდეს მხოლოდ ასოებს და ციფრებს"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "Username must contain only letters and numbers."}, status=status.HTTP_400_BAD_REQUEST)
         
         elif not serializer.validated_data['user_name'].isascii():
-            if request.data['lang'] == 'ge':
+            if data['lang'] == 'ge':
                 return Response({"error": "სახელი უნდა შეიცავდეს მხოლოდ ინგლისურ ასოებს"}, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({"error": "Username must contain only English letters."}, status=status.HTTP_400_BAD_REQUEST)
@@ -160,12 +200,18 @@ class CustomUserCreateView(UserViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-
 class CustomUsernamePfpAboutChange(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsNotBanned]
 
     def get(self, request):
         user = User.objects.filter(user_name=request.user.user_name)[0]
+
+        # check and save ip of the user
+        ip = request.META.get('REMOTE_ADDR')
+        
+        user_ip = UserIp.objects.filter(user=user, ip=ip)
+        if not user_ip:
+            UserIp.objects.create(user=user, ip=ip)
 
         if UserActivityLog.objects.filter(user=user):
             if UserActivityLog.objects.filter(user=user).last().date_created != date.today():
@@ -525,6 +571,8 @@ class PayPalPaymentAPIView(views.APIView):
         course = Course.objects.filter(title=request.data['title'])[0]
         user = User.objects.filter(user_name=request.user.user_name)[0]
 
+        locale = request.data['locale']
+
         # ip = request.META.get('REMOTE_ADDR')
         # url = f"https://api.iplocation.net/?ip={ip}"
         # request_data = requests.get(url=url)
@@ -576,7 +624,7 @@ class PayPalPaymentAPIView(views.APIView):
                     "payment_method": "paypal"
                 },
                 "redirect_urls": {
-                    "return_url": f"http://localhost:5173/payment/execute/course/{encrypted_course_id}/{encrypted_promocode}",
+                    "return_url": f"http://localhost:5173/{locale}/courses/pay/?encryptedcourseid={encrypted_course_id}&encryptedpromocode={encrypted_promocode}",
                     "cancel_url": "yourdomain.com/payment/cancel/"
                 },
                 "transactions": [
@@ -656,6 +704,7 @@ class BundlePayPalPaymentAPIView(views.APIView):
         # course = Course.objects.filter(title=request.data['title'])[0]
         bundle = CourseBundle.objects.filter(title=request.data['title'])[0]
         user = User.objects.filter(user_name=request.user.user_name)[0]
+        locale = request.data['locale']
 
         # ip = request.META.get('REMOTE_ADDR')
         # url = f"https://api.iplocation.net/?ip={ip}"
@@ -713,7 +762,7 @@ class BundlePayPalPaymentAPIView(views.APIView):
                     "payment_method": "paypal"
                 },
                 "redirect_urls": {
-                    "return_url": f"http://localhost:5173/payment/execute/bundle/{encrypted_bundle_id}/{encrypted_promocode}",
+                    "return_url": f"http://localhost:5173/{locale}/bundles/pay/?encryptedbundleid={encrypted_bundle_id}&encryptedpromocode={encrypted_promocode}",
                     "cancel_url": "yourdomain.com/payment/cancel/"
                 },
                 "transactions": [

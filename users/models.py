@@ -107,3 +107,8 @@ class UserActivityLog(models.Model):
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
     activity_level = models.IntegerField(null=True, blank=True)
     date_created = models.DateField(default=date.today)
+
+class UserIp(models.Model):
+    user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
+    ip = models.CharField(max_length=200, null=True, blank=True)
+    date_created = models.DateField(default=date.today)

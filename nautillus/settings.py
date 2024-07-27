@@ -160,9 +160,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny'
     ],
 
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ),
 }
 
 SIMPLE_JWT = {
@@ -212,7 +212,7 @@ DJOSER = {
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
     'SET_USERNAME_RETYPE': True,
     'SET_PASSWORD_RETYPE': True,
-    'PASSWORD_RESET_CONFIRM_URL': 'http://localhost:5173/user/forgotpass?uid={uid}&token={token}',
+    # 'PASSWORD_RESET_CONFIRM_URL': 'http://localhost:5173/user/forgotpass?uid={uid}&token={token}',
     'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm?uid={uid}&token={token}',
     'EMAIL': {
         'activation': 'users.views.ActivationEmail',
@@ -221,7 +221,7 @@ DJOSER = {
         'password_reset': 'users.views.ResetPasswordEmail',
         'username_changed_confirmation': 'users.views.ChangeEmailConfirmation',
     },
-    'ACTIVATION_URL': 'http://localhost:5173/user/activation?uid={uid}&token={token}',
+    # 'ACTIVATION_URL': 'http://localhost:5173/user/activation?uid={uid}&token={token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SEND_CONFIRMATION_EMAIL': True,
     'SERIALIZERS':{
@@ -252,7 +252,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'nautillusgroup@gmail.com'
-EMAIL_HOST_PASSWORD = 'peds xxbc uouu dwkr'
+EMAIL_HOST_PASSWORD = 'faql vhka fdcl jqqx'
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'Nautillus <nautillusgroup@gmail.com>'
 

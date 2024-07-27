@@ -1,6 +1,6 @@
 from django.contrib import admin
 from users.models import NewUser
-from users.models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser, UserBundleCourse, UserActivityLog
+from users.models import UserCourse, Notification, UserCoursePage, PromoCode, UserPromoCode, UserClickNotification, ReportUser, UserBundleCourse, UserActivityLog, UserIp
 from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea, CharField
 from django import forms
@@ -69,6 +69,10 @@ class UserActivityLogAdminConfig(ModelAdmin):
     model = UserActivityLog
     list_display = ('user', 'activity_level', 'id', 'date_created')
 
+class UserIpAdminConfig(ModelAdmin):
+    model = UserIp
+    list_display = ('user', 'ip', 'id')
+
 # class OutstandingTokenAdminConfig(OutstandingTokenAdmin):
 #     def has_delete_permission(self, *args, **kwargs):
 #         return True
@@ -86,3 +90,5 @@ admin.site.register(UserPromoCode, UserPromoCodeAdminConfig)
 admin.site.register(UserClickNotification, UserClickNotificationAdminConfig)
 admin.site.register(ReportUser, ReportUserAdminConfig)
 admin.site.register(UserActivityLog, UserActivityLogAdminConfig)
+admin.site.register(UserIp, UserIpAdminConfig)
+
