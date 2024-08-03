@@ -35,13 +35,13 @@ class ActivationEmail(email.ActivationEmail):
     template_name = 'activateEmail.html'
 
     def send(self, *args, **kwargs):
-        user = kwargs.get('user')
         language = self.request.data.get('locale', 'en')
+        super_data = super().get_context_data()
 
-        activation_url = f'http://localhost:5173/{language}/user/activation?uid={kwargs.get("uid")}&token={kwargs.get("token")}'
+        activation_url = f'http://localhost:5173/{language}/user/activation?uid={super_data["uid"]}&token={super_data["token"]}'
 
         context = {
-            'user': user,
+            'user': super_data["user"],
             'activation_url': activation_url,
             'site_name': 'nautillus.org'
         }
@@ -65,13 +65,13 @@ class ResetPasswordEmail(email.PasswordResetEmail):
     template_name = 'passwordReset.html'
 
     def send(self, *args, **kwargs):
-        user = kwargs.get('user')
         language = self.request.data.get('locale', 'en')
-        print(language)
-        reset_url = f'http://localhost:5173/{language}/user/forgotpass?uid={kwargs.get("uid")}&token={kwargs.get("token")}'
+        super_data = super().get_context_data()
+
+        reset_url = f'http://localhost:5173/{language}/user/forgotpass?uid={super_data["uid"]}&token={super_data["token"]}'
 
         context = {
-            'user': user,
+            'user': super_data["user"],
             'reset_url': reset_url,
             'site_name': 'nautillus.org'
         }

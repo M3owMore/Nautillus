@@ -91,15 +91,26 @@ class ReturnCourseBundle(views.APIView):
 
         if request.user.is_authenticated:
             purchased_courses = []
-
+            paid_purchased_courses = []
+            error = ''
+            
             for course in bundle.courses.all():
                 if UserCourse.objects.filter(user=request.user, course=course):
                     purchased_courses.append(course)
             
             purchased_courses_serilizer = CourseSerializer(purchased_courses, many=True)
 
-            return Response({'bundle': serializer.data, 'purchased_courses': purchased_courses_serilizer.data}, status=status.HTTP_200_OK)
+            # only check courses which are not free
+            for course in bundle.courses.all():
+                if course.price != 0.00:  
+                    if UserCourse.objects.filter(user=request.user, course=course):
+                        paid_purchased_courses.append(course)
+
+            if len(paid_purchased_courses) > 2:
+                error = f'you have {len(paid_purchased_courses)} out of {len(bundle.courses.all())} courses'
+
+            return Response({'bundle': serializer.data, 'purchased_courses': purchased_courses_serilizer.data, 'error': error}, status=status.HTTP_200_OK)
 
             
 
-        return Response({'bundle': serializer.data, 'purchased_courses': []})
+        return Response({'bundle': serializer.data, 'purchased_courses': [], 'error': ''})
