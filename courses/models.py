@@ -59,6 +59,7 @@ class CourseBundle(models.Model):
     level_geo = models.CharField(blank=True, max_length=100)
     courses = models.ManyToManyField(Course, blank=True)
     date_created = models.DateTimeField(default=timezone.now)
+    tags = models.ManyToManyField(Tag, related_name='bundle_tags')
     real_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=False, null=True)
     bundle_sale = models.IntegerField(blank=True, default=0)

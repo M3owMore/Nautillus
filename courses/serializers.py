@@ -15,6 +15,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
 class CourseBundleSerializer(serializers.ModelSerializer):
     courses = CourseSerializer(many=True)
+    tags = TagSerializer(many=True)
     class Meta:
         model = CourseBundle
         fields = "__all__"
